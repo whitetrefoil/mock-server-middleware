@@ -31,9 +31,9 @@ initialize({
   // it will be handled by the mock server,
   // otherwise it will call `next()` to pass the request to the next middleware.
   apiPrefixes: ['/user-service/', '/auth-service/', '/payment-service/'],
-  // Related to PWD.  Will look for JSON / JS files in it.
+  // Where the API definition files locate.  Related to PWD.
   apiDir     : 'myMockFilesInThisDir',
-  // Replace /[^\w\d]/g to this when looking for JSON /JS files.
+  // Replace /[^\w\d]/g to this when looking for API definition files.
   nonChar    : '-',
 })
 

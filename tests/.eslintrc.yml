@@ -1,0 +1,12 @@
+---
+env:
+  mocha: true
+
+rules:
+  # Chai
+  max-nested-callbacks: 0
+  no-unused-expressions: 0
+  no-unused-vars:
+    - 2
+    - allowShortCircuit: true
+      varsIgnorePattern: should
