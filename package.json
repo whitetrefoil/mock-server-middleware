@@ -1,6 +1,6 @@
 {
   "name"           : "mock-server-middleware",
-  "version"        : "0.1.0",
+  "version"        : "0.1.0-alpha.1",
   "description"    : "A connect middleware of mock server to help develop web app.",
   "main"           : "lib/index.js",
   "scripts"        : {
