@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir"                        : "lib",
+    "allowJs"                       : true,
+    "target"                        : "es2015",
+    "lib"                           : ["es2015"],
+    "module"                        : "commonjs",
+    "moduleResolution"              : "node",
+    "inlineSources"                 : true,
+    "inlineSourceMap"               : false,
+    "sourceMap"                     : true,
+    "declaration"                   : true,
+    "emitDecoratorMetadata"         : true,
+    "experimentalDecorators"        : true,
+    "removeComments"                : false,
+    "noImplicitAny"                 : true,
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "include"        : [
+    "src/**/*"
+  ]
+}
