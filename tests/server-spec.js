@@ -71,7 +71,7 @@ describe('Server ::', () => {
   })
 
   describe('.off()', () => {
-    it('should cancel the effect of all ".on()"', (done) => {
+    it('should cancel the effect of all ".on()" if neither parameters given', (done) => {
       const mockReq1          = { method: 'GET', url: '/api/user/1' }
       const mockReq2          = { method: 'GET', url: '/api/user/2' }
       const mockRes1BeforeOff = { end: sandbox.spy() }
@@ -102,7 +102,7 @@ describe('Server ::', () => {
       }, 0)
     })
 
-    it('should only cancel the specified path of ".on()"', (done) => {
+    it('should only cancel the specified path of ".on()" if both parameters given', (done) => {
       const mockReq1          = { method: 'GET', url: '/api/user/1' }
       const mockReq2          = { method: 'GET', url: '/api/user/2' }
       const mockRes1BeforeOff = { end: sandbox.spy() }
@@ -132,6 +132,15 @@ describe('Server ::', () => {
         mockRes2BeforeOff.end.should.have.been.calledWith('"OK"')
         done()
       }, 0)
+    })
+
+    it('should throw an error if only one parameter given', () => {
+      const msm = requireNew('../lib')
+      msm.initialize()
+      const server = msm.server
+      should.throw(() => {
+        server.off('get')
+      }, Error)
     })
   })
 })

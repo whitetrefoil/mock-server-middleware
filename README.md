@@ -116,7 +116,7 @@ const { server } = require('mock-server-middleware')
 describe('User Page ::', () => {
   describe('Page Title ::', () => {
     it('should say hello to the user', () => {
-      server.once('get/user-service/users/1', {
+      server.once('GET', '/user-service/users/1', {
         code: 200,
         body: {
           _code   : 0,
@@ -135,4 +135,68 @@ describe('User Page ::', () => {
 API Doc
 -------
 
-**TODO**
+### `msm.initialize(options)`
+
+Initialize everything.  Need to be called before using anything else.
+
+Available options:
+
+* `apiPrefixes?: string[]` - If a request path starts like one of this,
+  it will be handled by the mock server,
+  otherwise it will call `next()` to pass the request to the next middleware.
+* `apiDir?: string` - Where the API definition files locate.  Related to PWD.
+* `nonChar?: string` - Replace `/[^\w\d-]/g` to this when looking for API definition files.
+* `lowerCase?: boolean` - Whether to unify all cases to lower case.
+* `ping?: number` - Delay before response, in ms.
+* `preserveQuery?: boolean` - Do not strip query in URL (instead replace '?' with nonChar).
+
+### `msm.middleware(req, res, next)`
+
+This is a connect compatible middleware (accepts `req`, `res`, `next`)
+which can also be used with Express / restify / etc.
+
+Use this with the preview server (gulp-connect, webpack-dev-server, etc.)
+to simulate the backend server.
+
+### `msm.server`
+
+This is what can be used in tests to manually override the behavior temporarily.
+
+It has below methods:
+
+#### `msm.server.once(method: string, url: string, definition: any)`
+
+Override the behavior of the next one request of this method on this path.
+`definition` can be a connect middleware function or a JSON-like definition.
+
+**NOTE:** `url` is actually the request path.
+e.g. for `http://www.example.com:8080/user/1` it should be `"/user/1"`.
+
+#### `msm.server.on(method: string, url: string, definition: any)`
+
+Override the behavior of all later requests of this method on this path.
+`definition` can be a connect middleware function or a JSON-like definition.
+
+**NOTE:** `url` is actually the request path.
+e.g. for `http://www.example.com:8080/user/1` it should be `"/user/1"`.
+
+#### `msm.server.off(method?: string, url?: string)`
+
+Cancel the effect of previous `msm.server.on()`.
+
+If both `method` & `url` given, will cancel only the specified override.
+If neither given, all overrides will be canceled.
+If only one given, it will throw an error to help writing tests.
+
+### API Definitions
+
+mock-server-middleware has ability to handle 2 kind of API definitions:
+
+* JS (connect middleware function)
+* JSON
+
+This is the spec of the API definition files in JSON.
+
+* `code?: number` - HTTP response status code.
+* `headers?: Object` - Custom HTTP response headers.
+* `body: any` - Response body.  Any valid JSON format can be used.

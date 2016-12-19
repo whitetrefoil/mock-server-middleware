@@ -22,45 +22,46 @@ const HTTP_INTERNAL_SERVER_ERROR = 500
 
 export interface IMockServerConfig {
   /**
-   * If a request path starts like one of below,
+   * If a request path starts like one of this,
    * it will be handled by the mock server,
    * otherwise it will call `next()` to pass the request to the next middleware.
    */
   apiPrefixes?: string[]
   /** Where the API definition files locate.  Related to PWD. */
   apiDir?: string
-  /** Replace /[^\w\d]/g to this when looking for API definition files. */
+  /** Replace `/[^\w\d-]/g` to this when looking for API definition files. */
   nonChar?: string
-  /** Unify all cases to lower case */
+  /** Whether to unify all cases to lower case. */
   lowerCase?: boolean
-  /** Delay before response, in ms */
+  /** Delay before response, in ms. */
   ping?: number
   /** Do not strip query in URL (instead replace '?' with nonChar). */
   preserveQuery?: boolean
 }
 
 export interface IJsonApiDefinition {
-  /** HTTP response status code */
+  /** HTTP response status code. */
   code?: number
-  /** Custom HTTP response headers */
+  /** Custom HTTP response headers. */
   headers?: Object
-  /**  */
-  body: Object | Object[] | string | string[]
+  /** Response body.  Any valid JSON format can be used. */
+  body: any
 }
 
-export interface IException {
+export interface IOverride {
   definition: any
   once: boolean
 }
-export interface IExceptionStore {
-  [path: string]: IException
+
+interface IOverrideStore {
+  [path: string]: IOverride
 }
 
 // endregion
 
 // region Variables / constants initialize
 
-const overrides: IExceptionStore = {}
+const overrides: IOverrideStore = {}
 
 const config: IMockServerConfig = {
   apiPrefixes  : ['/api/'],
@@ -79,10 +80,6 @@ function log(message: any, ...optionalParams: any[]): void {
   if (process.env.NODE_ENV === 'test') { return }
   // tslint:disable-next-line:no-console
   console.log(message, ...optionalParams)
-}
-
-export function initialize(options: IMockServerConfig): void {
-  Object.assign(config, options)
 }
 
 export function composeModulePath({ url, method }: IncomingMessage): string {
@@ -140,6 +137,10 @@ export function loadModule(modulePath: string): NextHandleFunction {
 
 // region Main exports
 
+export function initialize(options: IMockServerConfig): void {
+  Object.assign(config, options)
+}
+
 export const middleware: NextHandleFunction = function(req, res, next): void {
   if (every(config.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
     next()
@@ -176,9 +177,16 @@ export const server = {
       delete overrides[composeModulePath(req)]
       return
     }
-    for (const key in overrides) {
-      if (overrides.hasOwnProperty(key)) { delete overrides[key] }
+
+    if (method == null && url == null) {
+      for (const key in overrides) {
+        if (overrides.hasOwnProperty(key)) { delete overrides[key] }
+      }
+      return
     }
+
+    throw new Error('Params of msm.server.off() should either be both given or be neither given. '
+      + 'But now only one is given.  This usually indicates a problem in code.')
   },
 }
 // endregion
