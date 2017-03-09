@@ -3,6 +3,7 @@
 import { green, yellow, red }              from 'chalk'
 import { NextHandleFunction }              from 'connect'
 import { IncomingMessage, ServerResponse } from 'http'
+import Logger                              from './logger'
 import every                             = require('lodash/every')
 import forEach                           = require('lodash/forEach')
 import isFunction                        = require('lodash/isFunction')
@@ -43,7 +44,7 @@ export interface IJsonApiDefinition {
   /** HTTP response status code. */
   code?: number
   /** Custom HTTP response headers. */
-  headers?: Object
+  headers?: object
   /** Response body.  Any valid JSON format can be used. */
   body: any
 }
@@ -100,7 +101,7 @@ export function composeModulePath({ url, method }: IncomingMessage): string {
 }
 
 export function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFunction {
-  return (req: IncomingMessage, res: ServerResponse, next: Function) => {
+  return (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     res.statusCode = json.code || 200
     forEach(json.headers, (val, name) => {
       res.setHeader(name, val)
@@ -141,7 +142,7 @@ export function initialize(options: IMockServerConfig): void {
   Object.assign(config, options)
 }
 
-export const middleware: NextHandleFunction = function(req, res, next): void {
+export const middleware: NextHandleFunction = (req, res, next) => {
   if (every(config.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
     next()
     return
@@ -156,7 +157,7 @@ export const middleware: NextHandleFunction = function(req, res, next): void {
 
 export const server = {
   once(method: string, url: string, definition: any) {
-    const req = <IncomingMessage> { url, method }
+    const req = { url, method } as IncomingMessage
     overrides[composeModulePath(req)] = {
       definition,
       once: true,
@@ -164,7 +165,7 @@ export const server = {
   },
 
   on(method: string, url: string, definition: any) {
-    const req = <IncomingMessage> { url, method }
+    const req = { url, method } as IncomingMessage
     overrides[composeModulePath(req)] = {
       definition,
       once: false,
@@ -173,7 +174,7 @@ export const server = {
 
   off(method?: string, url?: string) {
     if (method != null && url != null) {
-      const req = <IncomingMessage> { url, method }
+      const req = { url, method } as IncomingMessage
       delete overrides[composeModulePath(req)]
       return
     }
@@ -189,4 +190,6 @@ export const server = {
       + 'But now only one is given.  This usually indicates a problem in code.')
   },
 }
+
+export { Logger }
 // endregion

@@ -2,6 +2,7 @@
 /// <reference types="connect" />
 import { NextHandleFunction } from 'connect';
 import { IncomingMessage } from 'http';
+import Logger from './logger';
 export interface IMockServerConfig {
     /**
      * If a request path starts like one of this,
@@ -24,7 +25,7 @@ export interface IJsonApiDefinition {
     /** HTTP response status code. */
     code?: number;
     /** Custom HTTP response headers. */
-    headers?: Object;
+    headers?: object;
     /** Response body.  Any valid JSON format can be used. */
     body: any;
 }
@@ -42,3 +43,4 @@ export declare const server: {
     on(method: string, url: string, definition: any): void;
     off(method?: string, url?: string): void;
 };
+export { Logger };
