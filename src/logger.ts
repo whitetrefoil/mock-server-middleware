@@ -30,10 +30,10 @@ export default {
   },
 
   warn(message: string) {
-    print(console.error, chalk.yellow, message)
+    print(console.log, chalk.yellow, message)
   },
 
   error(message: string) {
-    print(console.error, chalk.red, message)
+    print(console.log, chalk.red, message)
   },
 }
