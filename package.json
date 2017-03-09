@@ -3,6 +3,7 @@
   "version"        : "0.1.0-alpha.3",
   "description"    : "A connect middleware of mock server to help develop web app.",
   "main"           : "lib/index.js",
+  "types"          : "lib/index.d.ts",
   "scripts"        : {
     "test": "cross-env NODE_ENV=test mocha --es_staging --recursive -R nyan tests"
   },
