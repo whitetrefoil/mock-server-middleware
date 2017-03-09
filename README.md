@@ -202,3 +202,20 @@ This is the spec of the API definition files in JSON.
 * `code?: number` - HTTP response status code.
 * `headers?: Object` - Custom HTTP response headers.
 * `body: any` - Response body.  Any valid JSON format can be used.
+
+
+Changelog
+---------
+
+### v0.1.0-alpha.3
+
+* Added a logger helper.
+* Upgraded some dependencies.
+
+### v0.1.0-alpha.2
+
+* Fix some problem related to dependencies.
+
+### v0.1.0-alpha.1
+
+* Initial release.

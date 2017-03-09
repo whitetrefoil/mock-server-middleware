@@ -1,7 +1,9 @@
 {
   "extends": "tslint:latest",
   "rules"  : {
+    "import-spacing"            : false,
     "interface-name"            : false,
+    "max-classes-per-file"      : false,
     "member-access"             : false,
     "member-ordering"           : false,
     "no-consecutive-blank-lines": [true, 2],
@@ -10,7 +12,7 @@
     "no-string-literal"         : false,
     "no-var-requires"           : false,
     "object-literal-sort-keys"  : false,
-    "only-arrow-functions"      : false,
+    "only-arrow-functions"      : [true, "allow-declarations"],
     "ordered-imports"           : false,
     "quotemark"                 : [true, "single", "avoid-escape"],
     "semicolon"                 : [true, "never"],
