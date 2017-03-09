@@ -207,6 +207,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.1.0-alpha.4
+
+* Use `stdout` instead of `stderr` for `Logger.warn` & `Logger.error`.
+* Specify the location of `index.d.ts` file in `package.json`.
+
 ### v0.1.0-alpha.3
 
 * Added a logger helper.
