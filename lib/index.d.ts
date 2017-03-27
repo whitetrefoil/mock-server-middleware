@@ -51,7 +51,7 @@ export declare const server: {
     on(method: string, url: string, definition: any): void;
     off(method?: string, url?: string): void;
     called(pathname?: string | RegExp, method?: string): ICallLog[];
-    record(): void;
+    record(isLogFlushCheckBypassed?: boolean): void;
     stopRecording(): void;
     flush(): void;
 };

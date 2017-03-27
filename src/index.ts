@@ -248,8 +248,23 @@ export const server = {
 
   /**
    * Start recording requests.
+   * If recording is already started or previous logs haven't been flushed
+   * it will throw an Error to help prevent potential error in tests.
+   *
+   * You can explicitly pass the log-flush check via the arguments,
+   * but the already-started check is mandatory.
+   *
+   * @param isFlushedCheckBypassed - Bypass log-flush check.
+   * @throws {Error}
    */
-  record(): void {
+  record(isLogFlushCheckBypassed: boolean = false): void {
+    if (isRecording === true) {
+      throw new Error('MSM is already recording! Check your test code!')
+    }
+    if (!isLogFlushCheckBypassed && callLog.length > 0) {
+      throw new Error('Previous request logs haven\'t been flushed yet!'
+        + '  If you really want to bypass this check, use `msm.server.record(true)`.')
+    }
     isRecording = true
   },
 

@@ -166,6 +166,32 @@ describe('Server ::', () => {
       msm.server.flush()
     })
 
+    describe('.recording(isLogFlushCheckBypassed: boolean = false)', () => {
+      it('should throw error if recording has already been started', (done) => {
+        setTimeout(() => {
+          should.Throw(() => { msm.server.record() }, Error)
+          done()
+        }, 0)
+      })
+
+      it('should throw error if previous logs haven\'t been flushed', (done) => {
+        msm.server.stopRecording()
+        setTimeout(() => {
+          should.Throw(() => { msm.server.record() }, Error)
+          done()
+        }, 0)
+      })
+
+
+      it('should bypass log-flush check if explicitly required', (done) => {
+        msm.server.stopRecording()
+        setTimeout(() => {
+          should.not.Throw(() => { msm.server.record(true) }, Error)
+          done()
+        }, 0)
+      })
+    })
+
     describe('.stopRecording()', () => {
       it('should stop recording but not to cleanup logs of requests', (done) => {
         const mockReq4 = { method: 'GET', url: '/api/user/4' }
