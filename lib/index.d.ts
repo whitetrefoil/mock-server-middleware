@@ -36,11 +36,21 @@ export interface IOverride {
 export declare function composeModulePath({url, method}: IncomingMessage): string;
 export declare function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFunction;
 export declare function loadModule(modulePath: string): NextHandleFunction;
+export interface ICallLog {
+    method: string;
+    body?: object;
+    href?: string;
+    search?: string;
+    query?: object;
+    pathname?: string;
+}
 export declare function initialize(options: IMockServerConfig): void;
 export declare const middleware: NextHandleFunction;
 export declare const server: {
     once(method: string, url: string, definition: any): void;
     on(method: string, url: string, definition: any): void;
     off(method?: string, url?: string): void;
+    called(pathname?: string | RegExp, method?: string): ICallLog[];
+    flush(): void;
 };
 export { Logger };

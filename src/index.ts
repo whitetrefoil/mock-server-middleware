@@ -5,9 +5,12 @@ import { NextHandleFunction }              from 'connect'
 import { IncomingMessage, ServerResponse } from 'http'
 import Logger                              from './logger'
 import every                             = require('lodash/every')
+import filter                            = require('lodash/filter')
 import forEach                           = require('lodash/forEach')
 import isFunction                        = require('lodash/isFunction')
+import isString                          = require('lodash/isString')
 import path                              = require('path')
+import url                               = require('url')
 const requireNew                         = require('require-uncached')
 
 // endregion
@@ -136,17 +139,49 @@ export function loadModule(modulePath: string): NextHandleFunction {
 
 // endregion
 
+// region Call logging (for testing)
+
+interface IRequestWithOptionalBody extends IncomingMessage {
+  body?: object
+}
+
+export interface ICallLog {
+  method: string
+  body?: object
+  href?: string
+  search?: string
+  query?: object
+  pathname?: string
+}
+
+let callLog: ICallLog[] = []
+
+// endregion
+
 // region Main exports
 
 export function initialize(options: IMockServerConfig): void {
   Object.assign(config, options)
 }
 
-export const middleware: NextHandleFunction = (req, res, next) => {
+export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, res, next) => {
   if (every(config.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
     next()
     return
   }
+
+  const log: ICallLog = {
+    method: req.method.toLowerCase(),
+  }
+
+  if (req.body != null) {
+    log.body = req.body
+  }
+
+  Object.assign(log, url.parse(req.url, true))
+
+  callLog.push(log)
+
   const modulePath = composeModulePath(req)
   const handler = loadModule(modulePath)
 
@@ -188,6 +223,31 @@ export const server = {
 
     throw new Error('Params of msm.server.off() should either be both given or be neither given. '
       + 'But now only one is given.  This usually indicates a problem in code.')
+  },
+
+  /**
+   * Return a list of all previous requests.
+   * @param pathname - Only return requests with pathname **starts** with this.
+   *                   Use RegExp if you want to match in middle.
+   * @param method - Filter by request method.
+   */
+  called(pathname?: string|RegExp, method?: string): ICallLog[] {
+    return filter(callLog, (log) => {
+      if (isString(method) && method.toLowerCase() !== log.method) {
+        return false
+      }
+      if (pathname != null && log.pathname.search(pathname as any) !== 0) {
+        return false
+      }
+      return true
+    })
+  },
+
+  /**
+   * Flush all logs of requests.
+   */
+  flush(): void {
+    callLog = []
   },
 }
 
