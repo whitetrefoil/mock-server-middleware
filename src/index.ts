@@ -5,9 +5,12 @@ import { NextHandleFunction }              from 'connect'
 import { IncomingMessage, ServerResponse } from 'http'
 import Logger                              from './logger'
 import every                             = require('lodash/every')
+import filter                            = require('lodash/filter')
 import forEach                           = require('lodash/forEach')
 import isFunction                        = require('lodash/isFunction')
+import isString                          = require('lodash/isString')
 import path                              = require('path')
+import url                               = require('url')
 const requireNew                         = require('require-uncached')
 
 // endregion
@@ -136,17 +139,52 @@ export function loadModule(modulePath: string): NextHandleFunction {
 
 // endregion
 
+// region Call logging (for testing)
+
+interface IRequestWithOptionalBody extends IncomingMessage {
+  body?: object
+}
+
+export interface ICallLog {
+  method: string
+  body?: object
+  href?: string
+  search?: string
+  query?: object
+  pathname?: string
+}
+
+let callLog: ICallLog[] = []
+let isRecording: boolean = false
+
+// endregion
+
 // region Main exports
 
 export function initialize(options: IMockServerConfig): void {
   Object.assign(config, options)
 }
 
-export const middleware: NextHandleFunction = (req, res, next) => {
+export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, res, next) => {
   if (every(config.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
     next()
     return
   }
+
+  if (isRecording === true) {
+    const log: ICallLog = {
+      method: req.method.toLowerCase(),
+    }
+
+    if (req.body != null) {
+      log.body = req.body
+    }
+
+    Object.assign(log, url.parse(req.url, true))
+
+    callLog.push(log)
+  }
+
   const modulePath = composeModulePath(req)
   const handler = loadModule(modulePath)
 
@@ -188,6 +226,61 @@ export const server = {
 
     throw new Error('Params of msm.server.off() should either be both given or be neither given. '
       + 'But now only one is given.  This usually indicates a problem in code.')
+  },
+
+  /**
+   * Return a list of all previous requests.
+   * @param pathname - Only return requests with pathname **starts** with this.
+   *                   Use RegExp if you want to match in middle.
+   * @param method - Filter by request method.
+   */
+  called(pathname?: string|RegExp, method?: string): ICallLog[] {
+    return filter(callLog, (log) => {
+      if (isString(method) && method.toLowerCase() !== log.method) {
+        return false
+      }
+      if (pathname != null && log.pathname.search(pathname as any) !== 0) {
+        return false
+      }
+      return true
+    })
+  },
+
+  /**
+   * Start recording requests.
+   * If recording is already started or previous logs haven't been flushed
+   * it will throw an Error to help prevent potential error in tests.
+   *
+   * You can explicitly pass the log-flush check via the arguments,
+   * but the already-started check is mandatory.
+   *
+   * @param isFlushedCheckBypassed - Bypass log-flush check.
+   * @throws {Error}
+   */
+  record(isLogFlushCheckBypassed: boolean = false): void {
+    if (isRecording === true) {
+      throw new Error('MSM is already recording! Check your test code!')
+    }
+    if (!isLogFlushCheckBypassed && callLog.length > 0) {
+      throw new Error('Previous request logs haven\'t been flushed yet!'
+        + '  If you really want to bypass this check, use `msm.server.record(true)`.')
+    }
+    isRecording = true
+  },
+
+  /**
+   * Stop recording requests but not to flush the logs.
+   */
+  stopRecording(): void {
+    isRecording = false
+  },
+
+  /**
+   * Stop recording & flush all logs of requests.
+   */
+  flush(): void {
+    isRecording = false
+    callLog = []
   },
 }
 

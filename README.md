@@ -24,6 +24,7 @@ How To Use (Simplest Example)
 
 Gulpfile.js:
 ```javascript
+const bodyParser                 = require('body-parser')
 const gulp                       = require('gulp')
 const connect                    = require('gulp-connect')
 const { initialize, middleware } = require('mock-server-middleware')
@@ -45,7 +46,7 @@ gulp.task('serve', () => {
     port      : 12345,
     fallback  : 'mySrcDir/index.html',
     middleware: () => {
-      const middlewareList = []
+      const middlewareList = [bodyParser.json()]
       
       console.log('Using "mock-server-middleware"...')
       middlewareList.push(middleware)
@@ -116,6 +117,8 @@ tests/user-page/page-title-spec.js
 const { server } = require('mock-server-middleware')
 
 describe('User Page ::', () => {
+  beforeEach(() => server.record())
+  afterEach(() => server.flush())
   describe('Page Title ::', () => {
     it('should say hello to the user', () => {
       server.once('GET', '/user-service/users/1', {
@@ -126,9 +129,24 @@ describe('User Page ::', () => {
           data    : { id: 1, name: 'Tester' },
         },
       })
+      server.once('POST', '/audit-service/login?userId=1', {
+        code: 201,
+        body: {
+          _code   : 0,
+          _message: 'OK',
+          data    : null,
+        },
+      })
+      
       browser.url('http://localhost:8080/home/1')
         .element('#title')
         .getText().should.eventually.equal('Hello, Tester!')
+
+      server.called('/user-service/users/1', 'GET').length.should.equal(1)
+      const logRequest = server.called(/.*\/login\//)
+      logRequest.length.should.equal(1)
+      logRequest[0].query.userId.should.equal(1)
+      (Date.now() - logRequest[0].body.timestamp).should.be.at.most(10000)
     })
   })
 })
@@ -162,7 +180,9 @@ to simulate the backend server.
 
 ### `msm.server`
 
-This is what can be used in tests to manually override the behavior temporarily.
+Here's some API which may help testing.
+e.g. we can use them to manually override the behavior temporarily,
+or record the requests from browser.
 
 It has below methods:
 
@@ -190,6 +210,48 @@ If both `method` & `url` given, will cancel only the specified override.
 If neither given, all overrides will be canceled.
 If only one given, it will throw an error to help writing tests.
 
+### `msm.server.record(isLogFlushCheckBypassed: boolean = false)`
+
+Start recording requests.
+
+If recording is already started or previous logs haven't been flushed
+it will throw an Error to help prevent potential error in tests.
+
+You can explicitly pass the log-flush check via the arguments,
+but the already-started check is mandatory.
+
+### `msm.server.stopRecording()`
+
+Stop recording requests but not to flush the logs.
+
+### `msm.server.flush()`
+
+Stop recording & flush all logs of requests.
+
+### `msm.server.called(pathname?: string|RegExp, method?: string): ICallLog[]`
+
+Return a list of previous requests.
+
+You can filter the logs with pathname and/or method.  If leave blank it will mean "any".
+
+**NOTICE**:  `pathname` here means the request pathname starts with it.
+If you want to match the middle part, use RegExp.
+
+### `ICallLog`
+
+```typescript
+export interface ICallLog {
+  method: string
+  body?: object
+  href?: string
+  search?: string
+  query?: object
+  pathname?: string
+}
+```
+
+**NOTICE**: `body` will only have value if you used [`body-parser`](https://github.com/expressjs/body-parser) before MSM.
+
 ### API Definitions
 
 mock-server-middleware has ability to handle 2 kind of API definitions:
@@ -206,6 +268,11 @@ This is the spec of the API definition files in JSON.
 
 Changelog
 ---------
+
+### v0.2.0-alpha.1
+
+* Add some new API to help verify http requests during tests.
+* Upgraded some dependencies.
 
 ### v0.1.0-alpha.4
 
