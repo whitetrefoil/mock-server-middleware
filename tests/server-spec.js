@@ -154,6 +154,7 @@ describe('Server ::', () => {
       const mockReq2 = { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } }
       const mockReq3 = { method: 'DELETE', url: '/api/user/3?param=value' }
 
+      msm.server.record()
       msm.initialize()
 
       msm.middleware(mockReq1, { end: _.noop }, _.noop)
@@ -163,6 +164,22 @@ describe('Server ::', () => {
 
     afterEach(() => {
       msm.server.flush()
+    })
+
+    describe('.stopRecording()', () => {
+      it('should stop recording but not to cleanup logs of requests', (done) => {
+        const mockReq4 = { method: 'GET', url: '/api/user/4' }
+        const mockReq5 = { method: 'GET', url: '/api/user/5' }
+        setTimeout(() => {
+          msm.server.called().length.should.equal(3)
+          msm.middleware(mockReq4, { end: _.noop }, _.noop)
+          msm.server.called().length.should.equal(4)
+          msm.server.stopRecording()
+          msm.middleware(mockReq5, { end: _.noop }, _.noop)
+          msm.server.called().length.should.equal(4)
+          done()
+        }, 0)
+      })
     })
 
     describe('.flush()', () => {

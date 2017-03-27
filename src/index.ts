@@ -155,6 +155,7 @@ export interface ICallLog {
 }
 
 let callLog: ICallLog[] = []
+let isRecording: boolean = false
 
 // endregion
 
@@ -170,17 +171,19 @@ export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, re
     return
   }
 
-  const log: ICallLog = {
-    method: req.method.toLowerCase(),
+  if (isRecording === true) {
+    const log: ICallLog = {
+      method: req.method.toLowerCase(),
+    }
+
+    if (req.body != null) {
+      log.body = req.body
+    }
+
+    Object.assign(log, url.parse(req.url, true))
+
+    callLog.push(log)
   }
-
-  if (req.body != null) {
-    log.body = req.body
-  }
-
-  Object.assign(log, url.parse(req.url, true))
-
-  callLog.push(log)
 
   const modulePath = composeModulePath(req)
   const handler = loadModule(modulePath)
@@ -244,9 +247,24 @@ export const server = {
   },
 
   /**
-   * Flush all logs of requests.
+   * Start recording requests.
+   */
+  record(): void {
+    isRecording = true
+  },
+
+  /**
+   * Stop recording requests but not to flush the logs.
+   */
+  stopRecording(): void {
+    isRecording = false
+  },
+
+  /**
+   * Stop recording & flush all logs of requests.
    */
   flush(): void {
+    isRecording = false
     callLog = []
   },
 }
