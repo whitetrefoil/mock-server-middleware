@@ -237,7 +237,7 @@ You can filter the logs with pathname and/or method.  If leave blank it will mea
 **NOTICE**:  `pathname` here means the request pathname starts with it.
 If you want to match the middle part, use RegExp.
 
-### ICallLog
+### `ICallLog`
 
 ```typescript
 export interface ICallLog {
