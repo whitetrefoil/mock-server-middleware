@@ -269,6 +269,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.2.0-alpha.1
+
+* Add some new API to help verify http requests during tests.
+* Upgraded some dependencies.
+
 ### v0.1.0-alpha.4
 
 * Use `stdout` instead of `stderr` for `Logger.warn` & `Logger.error`.
