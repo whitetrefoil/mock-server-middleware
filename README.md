@@ -269,6 +269,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.2.0-alpha.2
+
+* Fix typo in README.md
+
 ### v0.2.0-alpha.1
 
 * Add some new API to help verify http requests during tests.
