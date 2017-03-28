@@ -210,7 +210,7 @@ If both `method` & `url` given, will cancel only the specified override.
 If neither given, all overrides will be canceled.
 If only one given, it will throw an error to help writing tests.
 
-### `msm.server.record(isLogFlushCheckBypassed: boolean = false)`
+#### `msm.server.record(isLogFlushCheckBypassed: boolean = false)`
 
 Start recording requests.
 
@@ -220,15 +220,15 @@ it will throw an Error to help prevent potential error in tests.
 You can explicitly pass the log-flush check via the arguments,
 but the already-started check is mandatory.
 
-### `msm.server.stopRecording()`
+#### `msm.server.stopRecording()`
 
 Stop recording requests but not to flush the logs.
 
-### `msm.server.flush()`
+#### `msm.server.flush()`
 
 Stop recording & flush all logs of requests.
 
-### `msm.server.called(pathname?: string|RegExp, method?: string): ICallLog[]`
+#### `msm.server.called(pathname?: string|RegExp, method?: string): ICallLog[]`
 
 Return a list of previous requests.
 
@@ -237,7 +237,7 @@ You can filter the logs with pathname and/or method.  If leave blank it will mea
 **NOTICE**:  `pathname` here means the request pathname starts with it.
 If you want to match the middle part, use RegExp.
 
-### `ICallLog`
+#### `ICallLog`
 
 ```typescript
 export interface ICallLog {
