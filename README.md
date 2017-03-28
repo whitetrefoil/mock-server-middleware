@@ -269,9 +269,13 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.2.0-alpha.3
+
+* Very simple support of log level.
+
 ### v0.2.0-alpha.2
 
-* Fix typo in README.md
+* Fix typo in "README.md".
 
 ### v0.2.0-alpha.1
 

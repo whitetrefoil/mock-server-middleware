@@ -3,7 +3,7 @@
 import { green, yellow, red }              from 'chalk'
 import { NextHandleFunction }              from 'connect'
 import { IncomingMessage, ServerResponse } from 'http'
-import Logger                              from './logger'
+import Logger, { ILogLevel, setLogLevel }  from './logger'
 import every                             = require('lodash/every')
 import filter                            = require('lodash/filter')
 import forEach                           = require('lodash/forEach')
@@ -41,6 +41,10 @@ export interface IMockServerConfig {
   ping?: number
   /** Do not strip query in URL (instead replace '?' with nonChar). */
   preserveQuery?: boolean
+  /**
+   * Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'.
+   */
+  logLevel?: ILogLevel
 }
 
 export interface IJsonApiDefinition {
@@ -74,17 +78,12 @@ const config: IMockServerConfig = {
   lowerCase    : true,
   ping         : 0,
   preserveQuery: false,
+  logLevel     : 'NONE',
 }
 
 // endregion
 
 // region Helper functions
-
-function log(message: any, ...optionalParams: any[]): void {
-  if (process.env.NODE_ENV === 'test') { return }
-  // tslint:disable-next-line:no-console
-  console.log(message, ...optionalParams)
-}
 
 export function composeModulePath({ url, method }: IncomingMessage): string {
   let modulePath = url
@@ -119,20 +118,20 @@ export function loadModule(modulePath: string): NextHandleFunction {
     if (overrides[modulePath] != null) {
       handler = overrides[modulePath].definition
       if (overrides[modulePath].once) { delete overrides[modulePath] }
-      log(green('Using Manual Override: ') + modulePath)
+      Logger.log(green('Using Manual Override: ') + modulePath)
     } else {
       handler = requireNew(modulePath)
-      log(green('Using API definition: ') + modulePath)
+      Logger.log(green('Using API definition: ') + modulePath)
     }
     if (isFunction(handler)) { return handler }
     return convertJsonToHandler(handler)
   } catch (e) {
     if (e.code === 'MODULE_NOT_FOUND') {
-      log(yellow('StubAPI not found: ') + modulePath)
+      Logger.warn(yellow('StubAPI not found: ') + modulePath)
       return convertJsonToHandler({ code: HTTP_NOT_FOUND, body: e })
     }
-    log(red('Errors in StubAPI: ') + modulePath)
-    log(e)
+    Logger.error(red('Errors in StubAPI: ') + modulePath)
+    Logger.error(e)
     return convertJsonToHandler({ code: HTTP_INTERNAL_SERVER_ERROR, body: e })
   }
 }
@@ -154,7 +153,7 @@ export interface ICallLog {
   pathname?: string
 }
 
-let callLog: ICallLog[] = []
+let callLog: ICallLog[]  = []
 let isRecording: boolean = false
 
 // endregion
@@ -163,6 +162,7 @@ let isRecording: boolean = false
 
 export function initialize(options: IMockServerConfig): void {
   Object.assign(config, options)
+  setLogLevel(config.logLevel)
 }
 
 export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, res, next) => {
@@ -186,7 +186,7 @@ export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, re
   }
 
   const modulePath = composeModulePath(req)
-  const handler = loadModule(modulePath)
+  const handler    = loadModule(modulePath)
 
   setTimeout(() => {
     handler(req, res, next)
@@ -196,6 +196,7 @@ export const middleware: NextHandleFunction = (req: IRequestWithOptionalBody, re
 export const server = {
   once(method: string, url: string, definition: any) {
     const req = { url, method } as IncomingMessage
+
     overrides[composeModulePath(req)] = {
       definition,
       once: true,
@@ -204,6 +205,7 @@ export const server = {
 
   on(method: string, url: string, definition: any) {
     const req = { url, method } as IncomingMessage
+
     overrides[composeModulePath(req)] = {
       definition,
       once: false,
@@ -234,7 +236,7 @@ export const server = {
    *                   Use RegExp if you want to match in middle.
    * @param method - Filter by request method.
    */
-  called(pathname?: string|RegExp, method?: string): ICallLog[] {
+    called(pathname?: string | RegExp, method?: string): ICallLog[] {
     return filter(callLog, (log) => {
       if (isString(method) && method.toLowerCase() !== log.method) {
         return false
@@ -257,7 +259,7 @@ export const server = {
    * @param isFlushedCheckBypassed - Bypass log-flush check.
    * @throws {Error}
    */
-  record(isLogFlushCheckBypassed: boolean = false): void {
+    record(isLogFlushCheckBypassed: boolean = false): void {
     if (isRecording === true) {
       throw new Error('MSM is already recording! Check your test code!')
     }
@@ -271,16 +273,16 @@ export const server = {
   /**
    * Stop recording requests but not to flush the logs.
    */
-  stopRecording(): void {
+    stopRecording(): void {
     isRecording = false
   },
 
   /**
    * Stop recording & flush all logs of requests.
    */
-  flush(): void {
+    flush(): void {
     isRecording = false
-    callLog = []
+    callLog     = []
   },
 }
 
