@@ -2,7 +2,7 @@
 /// <reference types="connect" />
 import { NextHandleFunction } from 'connect';
 import { IncomingMessage } from 'http';
-import Logger from './logger';
+import Logger, { ILogLevel } from './logger';
 export interface IMockServerConfig {
     /**
      * If a request path starts like one of this,
@@ -20,6 +20,10 @@ export interface IMockServerConfig {
     ping?: number;
     /** Do not strip query in URL (instead replace '?' with nonChar). */
     preserveQuery?: boolean;
+    /**
+     * Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'.
+     */
+    logLevel?: ILogLevel;
 }
 export interface IJsonApiDefinition {
     /** HTTP response status code. */
