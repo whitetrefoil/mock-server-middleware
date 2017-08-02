@@ -1,51 +1,81 @@
 {
-  "name"           : "mock-server-middleware",
-  "version"        : "0.2.0-alpha.3",
-  "description"    : "A connect middleware of mock server to help develop web app.",
-  "main"           : "lib/index.js",
-  "types"          : "lib/index.d.ts",
-  "scripts"        : {
+  "name": "mock-server-middleware",
+  "version": "0.3.0-alpha.1",
+  "description": "A connect middleware of mock server to help develop web app.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
     "test": "cross-env NODE_ENV=test mocha --es_staging --recursive -R nyan tests"
   },
-  "repository"     : {
+  "repository": {
     "type": "git",
-    "url" : "git+https://github.com/whitetrefoil/mock-server-middleware.git"
+    "url": "git+https://github.com/whitetrefoil/mock-server-middleware.git"
   },
-  "keywords"       : [
+  "keywords": [
     "mock",
     "server",
     "connect",
     "middleware"
   ],
-  "author"         : "WhiteTrefoil <whitetrefoil@gmail.com>",
-  "license"        : "MIT",
-  "bugs"           : {
+  "author": "WhiteTrefoil <whitetrefoil@gmail.com>",
+  "license": "MIT",
+  "bugs": {
     "url": "https://github.com/whitetrefoil/mock-server-middleware/issues"
   },
-  "homepage"       : "https://github.com/whitetrefoil/mock-server-middleware#readme",
+  "homepage": "https://github.com/whitetrefoil/mock-server-middleware#readme",
   "devDependencies": {
-    "@types/chai"      : "^3.4.35",
-    "@types/chalk"     : "^0.4.31",
-    "@types/connect"   : "^3.4.30",
-    "@types/lodash"    : "^4.14.58",
-    "@types/mocha"     : "^2.2.40",
-    "@types/node"      : "^7.0.11",
-    "@types/sinon"     : "^1.16.36",
-    "@types/sinon-chai": "^2.7.27",
-    "chai"             : "^3.5.0",
-    "connect"          : "^3.6.0",
-    "cross-env"        : "^3.2.4",
-    "eslint"           : "^3.18.0",
-    "istanbul"         : "^0.4.5",
-    "mocha"            : "^3.2.0",
-    "sinon"            : "^2.1.0",
-    "sinon-chai"       : "^2.9.0",
-    "tslint"           : "^4.5.1",
-    "typescript"       : "^2.2.1"
+    "@types/chalk": "^0.4.31",
+    "@types/connect": "^3.4.30",
+    "@types/lodash": "^4.14.71",
+    "@types/node": "^8.0.19",
+    "clear-require": "^2.0.0",
+    "connect": "^3.6.2",
+    "cross-env": "^5.0.2",
+    "eslint": "^4.3.0",
+    "istanbul": "^0.4.5",
+    "jest": "^20.0.4",
+    "ts-jest": "^20.0.7",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.2"
   },
-  "dependencies"   : {
-    "chalk"           : "^1.1.3",
-    "lodash"          : "^4.17.4",
+  "dependencies": {
+    "chalk": "^2.0.1",
+    "lodash": "^4.17.4",
     "require-uncached": "^1.0.3"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,js}",
+      "!**/*.d.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/~.*"
+    ],
+    "coverageDirectory": "test_results",
+    "coverageReporters": [
+      "clover",
+      "lcov",
+      "text-summary"
+    ],
+    "globals": {
+      "ts-jest": {
+        "skipBabel": true,
+        "useBabelrc": false
+      }
+    },
+    "mapCoverage": true,
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/helpers.js"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$",
+    "transform": {
+      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
   }
 }
