@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="JavaScriptTestRunnerJest" factoryName="Jest" singleton="false">
+  <configuration default="false" name="No Cache" type="JavaScriptTestRunnerJest" factoryName="Jest">
     <node-interpreter value="project" />
     <working-dir value="$PROJECT_DIR$" />
-    <jest-options value="--no-coverage" />
+    <jest-options value="--no-cache --no-coverage" />
     <envs />
     <scope-kind value="ALL" />
     <method />

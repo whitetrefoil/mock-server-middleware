@@ -16,9 +16,6 @@
     </option>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" project-jdk-name="Go 1.7.1" project-jdk-type="Go SDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
   <component name="SbtLocalSettings">
     <option name="modificationStamps">
       <map>
@@ -36,3 +33,4 @@
     <option name="customVMPath" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home" />
   </component>
 </project>
+
