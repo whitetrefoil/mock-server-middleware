@@ -24,12 +24,12 @@ How To Use (Simplest Example)
 
 Gulpfile.js:
 ```javascript
-const bodyParser                 = require('body-parser')
-const gulp                       = require('gulp')
-const connect                    = require('gulp-connect')
-const { initialize, middleware } = require('mock-server-middleware')
+const bodyParser = require('body-parser')
+const gulp       = require('gulp')
+const connect    = require('gulp-connect')
+const { MSM }    = require('mock-server-middleware')
 
-initialize({
+const msm = new MSM({
   // If a request path starts like one of below,
   // it will be handled by the mock server,
   // otherwise it will call `next()` to pass the request to the next middleware.
@@ -49,7 +49,7 @@ gulp.task('serve', () => {
       const middlewareList = [bodyParser.json()]
       
       console.log('Using "mock-server-middleware"...')
-      middlewareList.push(middleware)
+      middlewareList.push(msm.middleware)
       
       // Push any other middleware you want.
       
@@ -114,7 +114,8 @@ module.exports = (req, res) => {
 
 tests/user-page/page-title-spec.js
 ```javascript
-const { server } = require('mock-server-middleware')
+const { msm } = require('../setup/mock-server-setup')
+const server = msm.server
 
 describe('User Page ::', () => {
   beforeEach(() => server.record())
@@ -137,7 +138,7 @@ describe('User Page ::', () => {
           data    : null,
         },
       })
-      
+
       browser.url('http://localhost:8080/home/1')
         .element('#title')
         .getText().should.eventually.equal('Hello, Tester!')
@@ -155,9 +156,9 @@ describe('User Page ::', () => {
 API Doc
 -------
 
-### `msm.initialize(options)`
+### `new MSM(options)`
 
-Initialize everything.  Need to be called before using anything else.
+Construct a MSM instance.
 
 Available options:
 
@@ -268,6 +269,13 @@ This is the spec of the API definition files in JSON.
 
 Changelog
 ---------
+
+### v0.3.0-alpha.1
+
+* **!!!BREAKING!!!** Now the module exports a Class instead of a global object.
+* When using simple JSON, include `Content-Type: application/json` by default.
+* Better TS declarations.
+* Be compatible with ES6 export (`export default`).
 
 ### v0.2.0-alpha.3
 
