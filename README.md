@@ -166,7 +166,7 @@ Available options:
   it will be handled by the mock server,
   otherwise it will call `next()` to pass the request to the next middleware.
 * `apiDir?: string` - Where the API definition files locate.  Related to PWD.
-* `nonChar?: string` - Replace `/[^\w\d-]/g` to this when looking for API definition files.
+* `nonChar?: string` - Replace `/[^a-zA-Z0-9/]/g` to this when looking for API definition files.
 * `lowerCase?: boolean` - Whether to unify all cases to lower case.
 * `ping?: number` - Delay before response, in ms.
 * `preserveQuery?: boolean` - Do not strip query in URL (instead replace '?' with nonChar).
