@@ -47,12 +47,12 @@ gulp.task('serve', () => {
     fallback  : 'mySrcDir/index.html',
     middleware: () => {
       const middlewareList = [bodyParser.json()]
-      
+
       console.log('Using "mock-server-middleware"...')
-      middlewareList.push(msm.middleware)
-      
+      middlewareList.push(msm.middleware())
+
       // Push any other middleware you want.
-      
+
       return middlewareList
     },
   })
@@ -171,9 +171,9 @@ Available options:
 * `ping?: number` - Delay before response, in ms.
 * `preserveQuery?: boolean` - Do not strip query in URL (instead replace '?' with nonChar).
 
-### `msm.middleware(req, res, next)`
+### `msm.middleware()`
 
-This is a connect compatible middleware (accepts `req`, `res`, `next`)
+This will return a connect compatible middleware (accepts `req`, `res`, `next`)
 which can also be used with Express / restify / etc.
 
 Use this with the preview server (gulp-connect, webpack-dev-server, etc.)

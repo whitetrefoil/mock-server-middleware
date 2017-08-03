@@ -52,6 +52,9 @@ interface IRequestWithOptionalBody extends IncomingMessage {
 
 export { IRequestWithOptionalBody as IRequest, ServerResponse as IResponse, NextHandleFunction as INextFn }
 
+export type IMSMMiddleware
+  = (request: IRequestWithOptionalBody, response: ServerResponse, next: () => any) => void
+
 // endregion
 
 // region - Main exports
@@ -79,26 +82,39 @@ export default class MSM implements IMockServerConfig {
     }
     this.logger = new Logger(this.logLevel)
     this.server = new MSMServer(this)
+    this.logger.warn('MSM initialized')
+    this.logger.log(`apiPrefixes: ${this.apiPrefixes}`)
+    this.logger.log(`apiDir: ${this.apiDir}`)
+    this.logger.log(`nonChar: ${this.nonChar}`)
+    this.logger.log(`lowerCase: ${this.lowerCase}`)
+    this.logger.log(`ping: ${this.ping}`)
+    this.logger.log(`preserveQuery: ${this.preserveQuery}`)
+    this.logger.log(`logLevel: ${this.logLevel}`)
   }
 
-  middleware(req: IRequestWithOptionalBody, res: ServerResponse, next: () => any): void {
-    if (_.every(this.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
-      next()
-      return
+  middleware(): IMSMMiddleware {
+    return (req: IRequestWithOptionalBody, res: ServerResponse, next: () => any) => {
+      if (_.every(this.apiPrefixes, (prefix) => req.url.indexOf(prefix) !== 0)) {
+        this.logger.debug(`NOT HIT: ${req.method} ${req.url}`)
+        next()
+        return
+      }
+
+      this.logger.info(`${req.method} ${req.url}`)
+
+      this.server.logCall(
+        req.method.toLocaleLowerCase(),
+        url.parse(req.url, true),
+        req.body != null ? req.body : void 0,
+      )
+
+      const modulePath = composeModulePath(req, this)
+      const handler = loadModule(modulePath, this.server.overrides, this.logger)
+
+      setTimeout(() => {
+        handler(req, res, next)
+      }, this.ping)
     }
-
-    this.server.logCall(
-      req.method.toLocaleLowerCase(),
-      url.parse(req.url, true),
-      req.body != null ? req.body : void 0,
-    )
-
-    const modulePath = composeModulePath(req, this)
-    const handler = loadModule(modulePath, this.server.overrides, this.logger)
-
-    setTimeout(() => {
-      handler(req, res, next)
-    }, this.ping)
   }
 }
 // endregion
