@@ -23,52 +23,54 @@ export interface ILogLevelMap {
   NONE: number
 }
 
-const LogLevelMap: ILogLevelMap = {
-  DEBUG: 1,
-  INFO : 2,
-  LOG  : 2,
-  WARN : 3,
-  ERROR: 4,
-  NONE : 10,
-}
-
 export type ILogLevel = keyof ILogLevelMap
 
-let logLevel: ILogLevel = null
-
-export const setLogLevel = (level: ILogLevel = 'NONE') => {
-  if (!LogLevelMap[level]) {
-    logLevel = 'NONE'
-    return
-  }
-  logLevel = level
+const LogLevelMap: ILogLevelMap = {
+  DEBUG: 1,
+  INFO: 2,
+  LOG: 2,
+  WARN: 3,
+  ERROR: 4,
+  NONE: 10,
 }
 
-export default {
+class Logger {
+  readonly logLevel: ILogLevel = null
+
+  constructor(level: ILogLevel) {
+    if (!LogLevelMap[level]) {
+      this.logLevel = 'NONE'
+      return
+    }
+    this.logLevel = level
+  }
+
   debug(message: string) {
-    if (LogLevelMap[logLevel] > LogLevelMap.DEBUG) { return }
+    if (LogLevelMap[this.logLevel] > LogLevelMap.DEBUG) { return }
     if (process.env.NODE_ENV === 'development') {
       print(console.log, chalk.magenta, message)
     }
-  },
+  }
 
   info(message: string) {
-    if (LogLevelMap[logLevel] > LogLevelMap.INFO) { return }
+    if (LogLevelMap[this.logLevel] > LogLevelMap.INFO) { return }
     print(console.log, chalk.cyan, message)
-  },
+  }
 
   log(message: string) {
-    if (LogLevelMap[logLevel] > LogLevelMap.LOG) { return }
+    if (LogLevelMap[this.logLevel] > LogLevelMap.LOG) { return }
     print(console.log, chalk.green, message)
-  },
+  }
 
   warn(message: string) {
-    if (LogLevelMap[logLevel] > LogLevelMap.WARN) { return }
+    if (LogLevelMap[this.logLevel] > LogLevelMap.WARN) { return }
     print(console.log, chalk.yellow, message)
-  },
+  }
 
   error(message: string) {
-    if (LogLevelMap[logLevel] > LogLevelMap.ERROR) { return }
+    if (LogLevelMap[this.logLevel] > LogLevelMap.ERROR) { return }
     print(console.log, chalk.red, message)
-  },
+  }
 }
+
+export default Logger

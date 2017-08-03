@@ -7,12 +7,14 @@ export interface ILogLevelMap {
     NONE: number;
 }
 export declare type ILogLevel = keyof ILogLevelMap;
-export declare const setLogLevel: (level?: "DEBUG" | "INFO" | "LOG" | "WARN" | "ERROR" | "NONE") => void;
-declare var _default: {
+declare class Logger {
+    logLevel: ILogLevel;
+    constructor(level: ILogLevel);
+    setLogLevel(level?: ILogLevel): void;
     debug(message: string): void;
     info(message: string): void;
     log(message: string): void;
     warn(message: string): void;
     error(message: string): void;
-};
-export default _default;
+}
+export default Logger;
