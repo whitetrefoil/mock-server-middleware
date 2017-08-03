@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
 import * as _ from 'lodash'
 import * as url from 'url'
-import { IMockServerConfig } from '../lib/msm'
+import { IMockServerConfig } from './msm'
 import { composeModulePath } from './utils'
 
 export interface IOverride {
