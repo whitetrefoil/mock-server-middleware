@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import * as url from 'url';
-import { IMockServerConfig } from '../lib/msm';
+import { IMockServerConfig } from './msm';
 export interface IOverride {
     definition: any;
     once: boolean;

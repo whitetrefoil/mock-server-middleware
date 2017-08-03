@@ -8,9 +8,8 @@ export interface ILogLevelMap {
 }
 export declare type ILogLevel = keyof ILogLevelMap;
 declare class Logger {
-    logLevel: ILogLevel;
+    readonly logLevel: ILogLevel;
     constructor(level: ILogLevel);
-    setLogLevel(level?: ILogLevel): void;
     debug(message: string): void;
     info(message: string): void;
     log(message: string): void;

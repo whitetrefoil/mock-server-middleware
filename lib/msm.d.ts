@@ -1,8 +1,8 @@
 /// <reference types="node" />
-/// <reference types="connect" />
 import { NextHandleFunction } from 'connect';
 import { IncomingMessage, ServerResponse } from 'http';
 import Logger, { ILogLevel } from './logger';
+import MSMServer from './server';
 export interface IMockServerConfig {
     /**
      * If a request path starts like one of this,
@@ -36,13 +36,18 @@ export interface IJsonApiDefinition {
 interface IRequestWithOptionalBody extends IncomingMessage {
     body?: object;
 }
-export interface ICallLog {
-    method: string;
-    body?: object;
-    href?: string;
-    search?: string;
-    query?: object;
-    pathname?: string;
+export { IRequestWithOptionalBody as IRequest, ServerResponse as IResponse, NextHandleFunction as INextFn };
+export declare type IMSMMiddleware = (request: IRequestWithOptionalBody, response: ServerResponse, next: () => any) => void;
+export default class MSM implements IMockServerConfig {
+    readonly apiPrefixes: string[];
+    readonly apiDir: string;
+    readonly nonChar: string;
+    readonly lowerCase: boolean;
+    readonly ping: number;
+    readonly preserveQuery: boolean;
+    readonly logLevel: ILogLevel;
+    readonly logger: Logger;
+    readonly server: MSMServer;
+    constructor(options?: IMockServerConfig);
+    middleware(): IMSMMiddleware;
 }
-export declare const middleware: NextHandleFunction;
-export { Logger, IRequestWithOptionalBody as Request, ServerResponse as Response, NextHandleFunction };
