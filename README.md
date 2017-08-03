@@ -273,6 +273,7 @@ Changelog
 ### v0.3.0-alpha.1
 
 * **!!!BREAKING!!!** Now the module exports a Class instead of a global object.
+* **!!!BREAKING!!!** Many API changed because of new code design.
 * When using simple JSON, include `Content-Type: application/json` by default.
 * Better TS declarations.
 * Be compatible with ES6 export (`export default`).
