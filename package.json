@@ -25,7 +25,9 @@
   "homepage": "https://github.com/whitetrefoil/mock-server-middleware#readme",
   "devDependencies": {
     "@types/chalk": "^0.4.31",
+    "@types/clear-require": "^2.0.0",
     "@types/connect": "^3.4.30",
+    "@types/jest": "^20.0.5",
     "@types/lodash": "^4.14.71",
     "@types/node": "^8.0.19",
     "clear-require": "^2.0.0",
@@ -60,7 +62,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "skipBabel": true,
+        "skipBabel": false,
         "useBabelrc": false
       }
     },
@@ -69,9 +71,6 @@
       "js",
       "json",
       "ts"
-    ],
-    "setupFiles": [
-      "<rootDir>/tests/helpers.js"
     ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$",
     "transform": {
