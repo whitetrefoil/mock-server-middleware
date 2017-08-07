@@ -83,7 +83,7 @@ export default class MSMServer {
   /**
    * Return a list of all previous requests.
    * @param pathname - Only return requests with pathname **starts** with this.
-   *                   Use RegExp if you want to match in middle.
+   *                   Use RegExp starts with ".*" if you want to match in middle.
    * @param method - Filter by request method.
    */
   called(pathname?: string|RegExp, method?: string): ICallLog[] {
@@ -91,7 +91,7 @@ export default class MSMServer {
       if (_.isString(method) && method.toLowerCase() !== log.method) {
         return false
       }
-      if (pathname != null && log.pathname.search(pathname as any) !== 0) {
+      if (pathname != null && log.pathname.search(pathname) !== 0) {
         return false
       }
       return true
