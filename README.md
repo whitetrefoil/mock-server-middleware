@@ -270,6 +270,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.3.0-alpha.2
+
+* More UT.
+* Fix document according to UT finding.
+
 ### v0.3.0-alpha.1
 
 * **!!!BREAKING!!!** Now the module exports a Class instead of a global object.
