@@ -33,7 +33,7 @@ describe('Server ::', () => {
           const server = msm.server
 
           middleware(mockReq, mockResBeforeOnce, mockNext)
-          msm.server.once(mockReq.method, mockReq.url, expectedResponse)
+          server.once(mockReq.method, mockReq.url, expectedResponse)
           middleware(mockReq, mockResAfterOnce, mockNext)
           middleware(mockReq, mockResSecondAfterOnce, mockNext)
 
@@ -71,6 +71,31 @@ describe('Server ::', () => {
           expect(mockResAfterOn.end).toHaveBeenCalledWith('"OK"')
           expect(mockResSecondAfterOn.statusCode).toBe(200)
           expect(mockResSecondAfterOn.end).toHaveBeenCalledWith('"OK"')
+        })
+
+        it('should support of JSON w/ comments', () => {
+          const mockReq = { method: 'GET', url: '/api/user/1' } as any as IRequest
+          const mockRes1 = mockRes()
+          const mockNext = jest.fn()
+          const mockJsonDef = `
+            {
+              "code": 200,
+              // This is a comment.
+              "body": "OK"
+            }
+          `
+
+          const msm = new MSM(mockConfig)
+          const middleware = msm.middleware()
+          const server = msm.server
+
+          server.on(mockReq.method, mockReq.url, mockJsonDef)
+          middleware(mockReq, mockRes1, mockNext)
+
+          jest.runAllTimers()
+
+          expect(mockRes1.statusCode).toBe(200)
+          expect(mockRes1.end).toHaveBeenCalledWith('"OK"')
         })
       })
 
@@ -142,7 +167,6 @@ describe('Server ::', () => {
 
         it('should throw an error if only one parameter given', () => {
           const msm = new MSM(mockConfig)
-          const middleware = msm.middleware()
           const server = msm.server
 
           expect(() => {
