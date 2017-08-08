@@ -33,7 +33,6 @@
     "clear-require": "^2.0.0",
     "connect": "^3.6.2",
     "cross-env": "^5.0.2",
-    "eslint": "^4.3.0",
     "istanbul": "^0.4.5",
     "jest": "^20.0.4",
     "ts-jest": "^20.0.7",
@@ -43,7 +42,8 @@
   "dependencies": {
     "chalk": "^2.0.1",
     "lodash": "^4.17.4",
-    "require-uncached": "^1.0.3"
+    "require-uncached": "^1.0.3",
+    "strip-json-comments": "^2.0.1"
   },
   "jest": {
     "collectCoverage": true,
