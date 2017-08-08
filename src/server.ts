@@ -1,11 +1,13 @@
+import { NextHandleFunction } from 'connect'
 import { IncomingMessage } from 'http'
 import * as _ from 'lodash'
+import * as stripJsonComments from 'strip-json-comments'
 import * as url from 'url'
-import { IMockServerConfig } from './msm'
-import { composeModulePath } from './utils'
+import { IMockServerConfig, IJsonApiDefinition } from './msm'
+import { composeModulePath, convertJsonToHandler } from './utils'
 
 export interface IOverride {
-  definition: any
+  definition: NextHandleFunction
   once: boolean
 }
 
@@ -21,6 +23,8 @@ export interface ICallLog {
   pathname: string
   body?: object
 }
+
+export type IDefinition = string|IJsonApiDefinition|NextHandleFunction
 
 export default class MSMServer {
   readonly config: IMockServerConfig
@@ -44,8 +48,15 @@ export default class MSMServer {
     })
   }
 
-  once(method: string, calledUrl: string, definition: any) {
+  once(method: string, calledUrl: string, definition: IDefinition) {
     const req: IncomingMessage = { url: calledUrl, method } as any
+    if (_.isString(definition)) {
+      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
+    }
+
+    if (!_.isFunction(definition)) {
+      definition = convertJsonToHandler(definition)
+    }
 
     this.overrides[composeModulePath(req, this.config)] = {
       definition,
@@ -53,8 +64,15 @@ export default class MSMServer {
     }
   }
 
-  on(method: string, calledUrl: string, definition: any) {
+  on(method: string, calledUrl: string, definition: IDefinition) {
     const req: IncomingMessage = { url: calledUrl, method } as any
+    if (_.isString(definition)) {
+      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
+    }
+
+    if (!_.isFunction(definition)) {
+      definition = convertJsonToHandler(definition)
+    }
 
     this.overrides[composeModulePath(req, this.config)] = {
       definition,

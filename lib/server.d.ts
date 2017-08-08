@@ -1,8 +1,10 @@
+/// <reference types="connect" />
 /// <reference types="node" />
+import { NextHandleFunction } from 'connect';
 import * as url from 'url';
-import { IMockServerConfig } from './msm';
+import { IMockServerConfig, IJsonApiDefinition } from './msm';
 export interface IOverride {
-    definition: any;
+    definition: NextHandleFunction;
     once: boolean;
 }
 export interface IOverrideStore {
@@ -16,6 +18,7 @@ export interface ICallLog {
     pathname: string;
     body?: object;
 }
+export declare type IDefinition = string | IJsonApiDefinition | NextHandleFunction;
 export default class MSMServer {
     readonly config: IMockServerConfig;
     readonly overrides: IOverrideStore;
@@ -23,8 +26,8 @@ export default class MSMServer {
     isRecording: boolean;
     constructor(config: IMockServerConfig);
     logCall(method: string, calledUrl: url.Url, body?: object): void;
-    once(method: string, calledUrl: string, definition: any): void;
-    on(method: string, calledUrl: string, definition: any): void;
+    once(method: string, calledUrl: string, definition: IDefinition): void;
+    on(method: string, calledUrl: string, definition: IDefinition): void;
     off(method?: string, calledUrl?: string): void;
     /**
      * Return a list of all previous requests.

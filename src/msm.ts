@@ -8,8 +8,6 @@ import Logger, { ILogLevel } from './logger'
 import MSMServer from './server'
 import { composeModulePath, loadModule } from './utils'
 
-const requireNew = require('require-uncached')
-
 // endregion
 
 // region - Interfaces
@@ -66,7 +64,7 @@ export default class MSM implements IMockServerConfig {
   readonly lowerCase: boolean = false
   readonly ping: number = 0
   readonly preserveQuery: boolean = false
-  readonly logLevel: ILogLevel = 'NONE' as 'NONE'
+  readonly logLevel: ILogLevel = 'NONE'
   readonly logger: Logger = null
   readonly server: MSMServer = null
 
