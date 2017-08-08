@@ -270,6 +270,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.4.0-alpha.1
+
+* Support JSON definition file with comments.
+* Re-write logic of definition loader.
+
 ### v0.3.0-alpha.2
 
 * More UT.
