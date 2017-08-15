@@ -84,7 +84,7 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleF
  */
 export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFunction {
   if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
-  const formattedPath = path.extname(filePath) === '.js' ? filePath : `${filePath}.js`
+  const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`
 
   try {
     const loadedFile = require(formattedPath)
