@@ -34,7 +34,7 @@ export interface IJsonApiDefinition {
     body: any;
 }
 interface IRequestWithOptionalBody extends IncomingMessage {
-    body?: object;
+    body?: any;
 }
 export { IRequestWithOptionalBody as IRequest, ServerResponse as IResponse, NextHandleFunction as INextFn };
 export declare type IMSMMiddleware = (request: IRequestWithOptionalBody, response: ServerResponse, next: () => any) => void;

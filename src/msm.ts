@@ -45,7 +45,7 @@ export interface IJsonApiDefinition {
 }
 
 interface IRequestWithOptionalBody extends IncomingMessage {
-  body?: object
+  body?: any
 }
 
 export { IRequestWithOptionalBody as IRequest, ServerResponse as IResponse, NextHandleFunction as INextFn }
