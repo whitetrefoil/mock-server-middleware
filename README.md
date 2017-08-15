@@ -270,6 +270,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.4.0-alpha.2
+
+* Small type definition optimize.
+* Allow loading `*.ts` definition files when running in `ts-node` environment.
+
 ### v0.4.0-alpha.1
 
 * Support JSON definition file with comments.
