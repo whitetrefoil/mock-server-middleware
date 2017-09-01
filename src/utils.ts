@@ -1,6 +1,7 @@
 // region - Imports
 
 import { yellow, green } from 'chalk'
+import * as clearRequire from 'clear-require'
 import { NextHandleFunction } from 'connect'
 import * as fs from 'fs'
 import { IncomingMessage, ServerResponse } from 'http'
@@ -87,6 +88,7 @@ export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFun
   const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`
 
   try {
+    clearRequire(formattedPath)
     const loadedFile = require(formattedPath)
     if (_.isFunction(loadedFile)) { return loadedFile }
     if (!_.isNull(loadedFile) && _.isFunction(loadedFile.default)) { return loadedFile.default }
