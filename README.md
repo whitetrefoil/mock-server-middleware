@@ -270,6 +270,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.4.0-alpha.4
+
+* Fix broken requirements. (Previously put `clear-require` into devDep. but it's actually is a prodReq.)
+
 ### v0.4.0-alpha.3
 
 * Now msm will load latest .js/.ts def file change without need of restarting.
