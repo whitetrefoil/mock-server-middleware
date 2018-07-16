@@ -270,6 +270,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.5.0-alpha.3
+
+* Export LogLevel enum.
+
 ### v0.5.0-alpha.2
 
 * Fix wrong entry filename.
