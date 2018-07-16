@@ -270,6 +270,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.5.0-alpha.1
+
+* Changes many stuff in project infrastructure.
+
 ### v0.4.0-alpha.4
 
 * Fix broken requirements. (Previously put `clear-require` into devDep. but it's actually is a prodReq.)
