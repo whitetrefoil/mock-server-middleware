@@ -1,23 +1,25 @@
 {
   "compilerOptions": {
-    "outDir"                        : "lib",
-    "allowJs"                       : false,
-    "allowSyntheticDefaultImports"  : false,
-    "target"                        : "es2015",
-    "lib"                           : ["es2015"],
-    "module"                        : "commonjs",
-    "moduleResolution"              : "node",
-    "inlineSources"                 : true,
-    "inlineSourceMap"               : false,
-    "sourceMap"                     : true,
-    "declaration"                   : true,
-    "emitDecoratorMetadata"         : true,
-    "experimentalDecorators"        : true,
-    "removeComments"                : false,
-    "noImplicitAny"                 : true,
-    "suppressImplicitAnyIndexErrors": true
+    "allowSyntheticDefaultImports": true,
+    "declaration"                 : true,
+    "declarationDir"              : "lib/types",
+    "esModuleInterop"             : true,
+    "experimentalDecorators"      : true,
+    "inlineSourceMap"             : false,
+    "inlineSources"               : true,
+    "lib"                         : ["es2017", "dom"],
+    "module"                      : "esnext",
+    "moduleResolution"            : "node",
+    "noImplicitAny"               : true,
+    "outDir"                      : "lib/esm",
+    "removeComments"              : false,
+    "skipLibCheck"                : true,
+    "sourceMap"                   : true,
+    "strict"                      : true,
+    "target"                      : "es2017"
   },
   "include"        : [
-    "src/**/*"
+    "declarations/*.d.ts",
+    "src/**/*.ts"
   ]
 }

@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":";;AAAA,+BAAuB;AAEd,cAFF,aAAG,CAEE","sourcesContent":["import MSM from './msm'\n\nexport { MSM }\n"]}
