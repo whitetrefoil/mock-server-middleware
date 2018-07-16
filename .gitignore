@@ -279,5 +279,6 @@ typings/
 ### Project specific files
 ~*
 .building/
+.testing/
 test_results/
 lib/
