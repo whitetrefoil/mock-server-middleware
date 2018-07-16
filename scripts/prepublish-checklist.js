@@ -10,6 +10,7 @@ function pleaseFix() {
 }
 
 const questions = [
+  'Have you set correct **--tag** value in npm publish command?',
   'Have you **committed** all files into Git?',
   'Have you **tagged** the version in Git?',
   'Have you **pushed** all commits to GitHub?',
