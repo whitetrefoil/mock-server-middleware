@@ -10,9 +10,9 @@
     "build": "rimraf lib && tsc && tsc -p tsconfig.common.json",
     "publish": "echo \"Done publishing, don't forget to:\n  1. **dist-tag** your channel in npm.\n  2. bump version in package.json\nGood luck with the publish ;)\"",
     "test": "npm run lint && npm run ut",
-    "ut": "cross-env TS_NODE_PROJECT=tests/tsconfig.json TS_NODE_TRANSPILE_ONLY=1 TS_NODE_CACHE=1 mocha -r ts-node/register --es_staging tests/**/*_spec.ts",
+    "ut": "cross-env TS_NODE_PROJECT=tests/tsconfig.json TS_NODE_FILES=1 TS_NODE_CACHE=0 mocha -r ts-node/register --es_staging tests/**/*_spec.ts",
     "lint": "tslint -p .",
-    "coverage": "cross-env TS_NODE_PROJECT=tests/tsconfig.json TS_NODE_TRANSPILE_ONLY=1 TS_NODE_CACHE=1 nyc mocha -r ts-node/register --es_staging tests/**/*_spec.ts"
+    "coverage": "cross-env TS_NODE_PROJECT=tests/tsconfig.json TS_NODE_FILES=1 TS_NODE_TRANSPILE_ONLY=1 TS_NODE_CACHE=0 nyc mocha -r ts-node/register --es_staging tests/**/*_spec.ts"
   },
   "repository": {
     "type": "git",

@@ -4,10 +4,11 @@
     "declaration"   : false,
     "declarationDir": null,
     "module"        : "commonjs",
-    "outDir"        : ".building",
+    "outDir"        : "../.testing",
     "target"        : "es5"
   },
   "include": [
+    "../declarations/*.d.ts",
     "../src/**/*.ts",
     "**/*.ts"
   ]

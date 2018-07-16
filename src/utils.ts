@@ -1,26 +1,51 @@
 // region - Imports
 
-import { yellow, green } from 'chalk'
-import * as clearRequire from 'clear-require'
+import chalk from 'chalk'
+import clearRequire from 'clear-require'
 import { NextHandleFunction } from 'connect'
 import * as fs from 'fs'
 import { IncomingMessage, ServerResponse } from 'http'
 import * as _ from 'lodash'
 import * as path from 'path'
-import * as stripJsonComments from 'strip-json-comments'
+import stripJsonComments from 'strip-json-comments'
 import Logger from './logger'
-import { IMockServerConfig, IJsonApiDefinition } from './msm'
+import { IJsonApiDefinition, IMockServerConfig } from './msm'
 import { IOverrideStore } from './server'
 
 // endregion
 
 // region - Constants
 
-const HTTP_NOT_FOUND = 404
+const HTTP_NOT_FOUND    = 404
+const { green, yellow } = chalk
 
 // endregion
 
-export function composeModulePath({ url, method }: IncomingMessage, config: IMockServerConfig): string {
+export function ensureProperties<T, P extends keyof T>(
+  obj: T,
+  props: P[],
+  message?: string,
+): Require<T, P> {
+  for (const prop of props) {
+    if (obj[prop] == null) {
+      throw new Error(message || `Missing "${prop}" in ${obj}`)
+    }
+  }
+  return obj as Require<T, P>
+}
+
+export function ensureUrl<T extends IncomingMessage>(req: T): Require<T, 'url'> {
+  return ensureProperties(req, ['url'], 'Missing "url" in request, something must be wrong in config.')
+}
+
+export function ensureMethod<T extends IncomingMessage>(req: T): Require<T, 'method'> {
+  return ensureProperties(req, ['method'], 'Missing "method" in request, something must be wrong in config.')
+}
+
+export function composeModulePath(
+  { url, method }: Required<Pick<IncomingMessage, 'url'|'method'>>,
+  config: Required<IMockServerConfig>,
+): string {
   let modulePath = url
 
   modulePath = modulePath.split('#')[0]
@@ -36,6 +61,10 @@ export function composeModulePath({ url, method }: IncomingMessage, config: IMoc
   )
 
   return fullModulePath
+}
+
+export function isJsonApiDefinition(obj: object): obj is IJsonApiDefinition {
+  return obj != null && obj.hasOwnProperty('body')
 }
 
 export function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFunction {
@@ -56,8 +85,8 @@ export function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFuncti
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleFunction {
-  if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
+export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleFunction|undefined {
+  // if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
   const formattedPath = path.extname(filePath) === '.json' ? filePath : `${filePath}.json`
 
   let loadedFile: string
@@ -83,8 +112,8 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleF
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFunction {
-  if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
+export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFunction|undefined {
+  // if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
   const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`
 
   try {
@@ -116,7 +145,11 @@ export function loadModuleFromFs(modulePath: string, logger: Logger): any {
   return readJsDefFromFs(modulePath, logger)
 }
 
-export function loadModuleFromOverrides(modulePath: string, overrides: IOverrideStore, logger: Logger): NextHandleFunction {
+export function loadModuleFromOverrides(
+  modulePath: string,
+  overrides: IOverrideStore,
+  logger: Logger,
+): NextHandleFunction|undefined {
   const loaded = overrides[modulePath]
   let handler: NextHandleFunction
 
@@ -135,7 +168,7 @@ export function loadModuleFromOverrides(modulePath: string, overrides: IOverride
 }
 
 export function loadModule(modulePath: string, overrides: IOverrideStore, logger: Logger): NextHandleFunction {
-  let handler: NextHandleFunction
+  let handler: NextHandleFunction|undefined
 
   handler = loadModuleFromOverrides(modulePath, overrides, logger)
   if (handler != null) {

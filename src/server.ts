@@ -1,10 +1,12 @@
 import { NextHandleFunction } from 'connect'
 import { IncomingMessage } from 'http'
 import * as _ from 'lodash'
-import * as stripJsonComments from 'strip-json-comments'
+import qs, { ParsedUrlQuery } from 'querystring'
+import stripJsonComments from 'strip-json-comments'
 import * as url from 'url'
-import { IMockServerConfig, IJsonApiDefinition } from './msm'
-import { composeModulePath, convertJsonToHandler } from './utils'
+import { IJsonApiDefinition, IMockServerConfig } from './msm'
+import { composeModulePath, convertJsonToHandler, isJsonApiDefinition } from './utils'
+
 
 export interface IOverride {
   definition: NextHandleFunction
@@ -18,43 +20,48 @@ export interface IOverrideStore {
 export interface ICallLog {
   method: string
   href: string
-  search: string
-  query: object
+  search: string|null
+  query: ParsedUrlQuery|null
   pathname: string
-  body?: object
+  body: object|null
 }
 
 export type IDefinition = string|IJsonApiDefinition|NextHandleFunction
 
-export default class MSMServer {
-  readonly config: IMockServerConfig
-  readonly overrides: IOverrideStore = {}
-  readonly callLogs: ICallLog[] = []
-  isRecording: boolean = false
 
-  constructor(config: IMockServerConfig) {
+export default class MSMServer {
+  readonly config: Required<IMockServerConfig>
+  readonly overrides: IOverrideStore = {}
+  readonly callLogs: ICallLog[]      = []
+           isRecording: boolean      = false
+
+  constructor(config: Required<IMockServerConfig>) {
     this.config = config
   }
 
   logCall(method: string, calledUrl: url.Url, body?: object) {
     if (this.isRecording === false) { return }
+    const query = typeof calledUrl.query === 'string' ? qs.parse(calledUrl.query) : calledUrl.query || null
     this.callLogs.push({
       method,
-      href: calledUrl.href,
-      search: calledUrl.search,
-      query: calledUrl.query,
-      pathname: calledUrl.pathname,
-      body,
+      href    : calledUrl.href || '<unknown url>',
+      search  : calledUrl.search || null,
+      query,
+      pathname: calledUrl.pathname || '<unknown pathname>',
+      body    : body || null,
     })
   }
 
-  once(method: string, calledUrl: string, definition: IDefinition) {
-    const req: IncomingMessage = { url: calledUrl, method } as any
-    if (_.isString(definition)) {
+  once(method: string, calledUrl: string, override: IDefinition) {
+    const req = { url: calledUrl, method }
+
+    let definition = override
+
+    if (typeof definition === 'string') {
       definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
     }
 
-    if (!_.isFunction(definition)) {
+    if (isJsonApiDefinition(definition)) {
       definition = convertJsonToHandler(definition)
     }
 
@@ -64,13 +71,16 @@ export default class MSMServer {
     }
   }
 
-  on(method: string, calledUrl: string, definition: IDefinition) {
-    const req: IncomingMessage = { url: calledUrl, method } as any
-    if (_.isString(definition)) {
+  on(method: string, calledUrl: string, override: IDefinition) {
+    const req = { url: calledUrl, method }
+
+    let definition = override
+
+    if (typeof definition === 'string') {
       definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
     }
 
-    if (!_.isFunction(definition)) {
+    if (isJsonApiDefinition(definition)) {
       definition = convertJsonToHandler(definition)
     }
 
@@ -82,7 +92,7 @@ export default class MSMServer {
 
   off(method?: string, calledUrl?: string) {
     if (method != null && calledUrl != null) {
-      const req: IncomingMessage = { url: calledUrl, method } as any
+      const req = { url: calledUrl, method }
       delete this.overrides[composeModulePath(req, this.config)]
       return
     }
@@ -95,7 +105,7 @@ export default class MSMServer {
     }
 
     throw new Error('Params of msm.server.off() should either be both given or be neither given. '
-      + 'But now only one is given.  This usually indicates a problem in code.')
+                    + 'But now only one is given.  This usually indicates a problem in code.')
   }
 
   /**
@@ -133,7 +143,7 @@ export default class MSMServer {
     }
     if (!isLogFlushCheckBypassed && this.callLogs.length > 0) {
       throw new Error('Previous request logs haven\'t been flushed yet!'
-        + '  If you really want to bypass this check, use `msm.server.record(true)`.')
+                      + '  If you really want to bypass this check, use `msm.server.record(true)`.')
     }
     this.isRecording = true
   }
@@ -149,7 +159,7 @@ export default class MSMServer {
    * Stop recording & flush all logs of requests.
    */
   flush(): void {
-    this.isRecording = false
+    this.isRecording     = false
     this.callLogs.length = 0
   }
 }
