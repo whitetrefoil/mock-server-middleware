@@ -8,7 +8,7 @@ import { parse as parseUrl } from 'url'
 import { IMockServerConfig, IParsedServerConfig, setOptions } from './config'
 import Logger, { LogLevel } from './logger'
 import MSMServer from './server'
-import { composeModulePath, delay, loadModule } from './utils'
+import { composeModulePath, delay, loadModule, loadModuleFromFs, saveModule } from './utils'
 
 // endregion
 
@@ -40,6 +40,7 @@ export default class MSM implements IParsedServerConfig {
   readonly logLevel: LogLevel     = LogLevel.NONE
   readonly lowerCase: boolean     = false
   readonly overwriteMode: boolean = false
+  readonly saveHeaders: string[]  = []
   readonly ping: number           = 0
   readonly preserveQuery: boolean = false
   readonly logger: Logger
@@ -113,7 +114,7 @@ export default class MSM implements IParsedServerConfig {
         return
       }
 
-      this.logger.info(`${method} ${url}`)
+      await saveModule(ctx, this, this.logger)
     }
   }
 }

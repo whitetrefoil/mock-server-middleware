@@ -1,9 +1,8 @@
-// region - Imports
-
 import chalk from 'chalk'
 import clearRequire from 'clear-require'
 import * as fs from 'fs'
-import { Middleware } from 'koa'
+import { ServerResponse } from 'http'
+import { Context, Middleware } from 'koa'
 import * as _ from 'lodash'
 import * as path from 'path'
 import stripJsonComments from 'strip-json-comments'
@@ -11,8 +10,6 @@ import { IParsedServerConfig } from './config'
 import Logger from './logger'
 import { IJsonApiDefinition } from './msm'
 import { IOverrideStore } from './server'
-
-// endregion
 
 
 // region - Constants
@@ -183,4 +180,28 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
 
   logger.warn(yellow('StubAPI not found: ') + modulePath)
   return convertJsonToHandler({ code: HTTP_NOT_FOUND, body: {} })
+}
+
+
+export async function saveModule(ctx: Context, config: IParsedServerConfig, logger: Logger) {
+  const method = ctx.method
+  const url = ctx.url
+  const headers = ctx.headers
+  const body = ctx.body
+  const fp = composeModulePath(ctx.request, config)
+  logger.info(`${method} ${url}`)
+  logger.debug(`should located at: ${fp}`)
+  const existed = loadModuleFromFs(fp, logger)
+
+  if (existed != null) {
+    logger.info('Definition exists...')
+    return
+  }
+
+  logger.warn(`No definition file found, saving to :${fp}.json`)
+
+  logger.info(`Method: ${method}`)
+  logger.info(`URL: ${url}`)
+  logger.info(`Headers: ${headers}`)
+  logger.info(`Body: ${body}`)
 }

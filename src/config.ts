@@ -27,6 +27,11 @@ export interface IMockServerConfig {
    */
   overwriteMode?: boolean
 
+  /**
+   * Specific some headers to save in "recorder" mode.
+   */
+  saveHeaders?: string[]
+
   /** Delay before response, in ms. */
   ping?: number
 
@@ -58,6 +63,9 @@ export function setOptions<APP extends IMockServerConfig>(
     }
     if (options.overwriteMode === true) {
       _this.overwriteMode = options.overwriteMode
+    }
+    if (options.saveHeaders != null && options.saveHeaders.length != null) {
+      _this.saveHeaders = options.saveHeaders
     }
     if (_.isFinite(options.ping)) {
       _this.ping = options.ping as number
