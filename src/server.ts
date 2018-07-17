@@ -1,15 +1,15 @@
-import { NextHandleFunction } from 'connect'
-import { IncomingMessage } from 'http'
+import { Middleware } from 'koa'
 import * as _ from 'lodash'
 import qs, { ParsedUrlQuery } from 'querystring'
 import stripJsonComments from 'strip-json-comments'
 import * as url from 'url'
-import { IJsonApiDefinition, IMockServerConfig } from './msm'
+import { IParsedServerConfig } from './config'
+import { IJsonApiDefinition } from './msm'
 import { composeModulePath, convertJsonToHandler, isJsonApiDefinition } from './utils'
 
 
 export interface IOverride {
-  definition: NextHandleFunction
+  definition: Middleware
   once: boolean
 }
 
@@ -26,16 +26,16 @@ export interface ICallLog {
   body: object|null
 }
 
-export type IDefinition = string|IJsonApiDefinition|NextHandleFunction
+export type IDefinition = string|IJsonApiDefinition|Middleware
 
 
 export default class MSMServer {
-  readonly config: Required<IMockServerConfig>
+  readonly config: IParsedServerConfig
   readonly overrides: IOverrideStore = {}
   readonly callLogs: ICallLog[]      = []
            isRecording: boolean      = false
 
-  constructor(config: Required<IMockServerConfig>) {
+  constructor(config: IParsedServerConfig) {
     this.config = config
   }
 

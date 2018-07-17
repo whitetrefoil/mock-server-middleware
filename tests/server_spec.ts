@@ -1,8 +1,8 @@
 import chai, { expect } from 'chai'
+import { Context } from 'koa'
 import sinon, { SinonFakeTimers } from 'sinon'
 import sinonChai from 'sinon-chai'
 import MSM from '../src/msm'
-import { mockRes } from './helpers'
 
 chai.use(sinonChai)
 
@@ -14,12 +14,6 @@ describe('Server', () => {
     preserveQuery: false,
   }
 
-  let clock: SinonFakeTimers
-
-  beforeEach(() => {
-    clock = sinon.useFakeTimers()
-  })
-
   afterEach(() => {
     sinon.restore()
   })
@@ -27,63 +21,84 @@ describe('Server', () => {
   describe('test support ::', () => {
     describe('response manipulation ::', () => {
       describe('server#once()', () => {
-        it('should only change the response once', () => {
-          const mockReq                = { method: 'GET', url: '/api/user/1' } as any
-          const mockResBeforeOnce      = mockRes(sinon)
-          const mockResAfterOnce       = mockRes(sinon)
-          const mockResSecondAfterOnce = mockRes(sinon)
-          const mockNext               = sinon.stub()
-          const expectedResponse       = { code: 200, body: 'OK' }
+        it('should only change the response once', async() => {
+          const mockCtxBeforeOnce = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtxAfterOnce = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtxSecondAfterOnce = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockNext = () => Promise.resolve()
+          const expectedResponse = { code: 200, body: 'OK' }
 
           const msm        = new MSM(mockConfig)
           const middleware = msm.middleware()
           const server     = msm.server
 
-          middleware(mockReq, mockResBeforeOnce, mockNext)
-          server.once(mockReq.method, mockReq.url, expectedResponse)
-          middleware(mockReq, mockResAfterOnce, mockNext)
-          middleware(mockReq, mockResSecondAfterOnce, mockNext)
+          await middleware(mockCtxBeforeOnce, mockNext)
+          server.once('GET', '/api/user/1', expectedResponse)
+          await middleware(mockCtxAfterOnce, mockNext)
+          await middleware(mockCtxSecondAfterOnce, mockNext)
 
-          clock.runAll()
-
-          expect(mockResBeforeOnce.statusCode).to.equal(404)
-          expect(mockResAfterOnce.statusCode).to.equal(200)
-          expect(mockResAfterOnce.end).to.have.been.calledWith('"OK"')
-          expect(mockResSecondAfterOnce.statusCode).to.equal(404)
+          expect(mockCtxBeforeOnce.status).to.equal(404)
+          expect(mockCtxAfterOnce.status).to.equal(200)
+          expect(mockCtxAfterOnce.body).to.equal('OK')
+          expect(mockCtxSecondAfterOnce.status).to.equal(404)
         })
       })
 
       describe('server#on()', () => {
-        it('should change all later responses', () => {
-          const mockReq              = { method: 'GET', url: '/api/user/1' } as any
-          const mockResBeforeOn      = mockRes(sinon)
-          const mockResAfterOn       = mockRes(sinon)
-          const mockResSecondAfterOn = mockRes(sinon)
-          const mockNext             = sinon.stub()
-          const expectedResponse     = { code: 200, body: 'OK' }
+        it('should change all later responses', async() => {
+          const mockCtxBeforeOn = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtxAfterOn = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtxSecondAfterOn = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockNext = () => Promise.resolve()
+          const expectedResponse = { code: 200, body: 'OK' }
 
           const msm        = new MSM(mockConfig)
           const middleware = msm.middleware()
           const server     = msm.server
 
-          middleware(mockReq, mockResBeforeOn, mockNext)
-          server.on(mockReq.method, mockReq.url, expectedResponse)
-          middleware(mockReq, mockResAfterOn, mockNext)
-          middleware(mockReq, mockResSecondAfterOn, mockNext)
+          await middleware(mockCtxBeforeOn, mockNext)
+          server.on('GET', '/api/user/1', expectedResponse)
+          await middleware(mockCtxAfterOn, mockNext)
+          await middleware(mockCtxSecondAfterOn, mockNext)
 
-          clock.runAll()
-
-          expect(mockResBeforeOn.statusCode).to.equal(404)
-          expect(mockResAfterOn.statusCode).to.equal(200)
-          expect(mockResAfterOn.end).to.have.been.calledWith('"OK"')
-          expect(mockResSecondAfterOn.statusCode).to.equal(200)
-          expect(mockResSecondAfterOn.end).to.have.been.calledWith('"OK"')
+          expect(mockCtxBeforeOn.status).to.equal(404)
+          expect(mockCtxAfterOn.status).to.equal(200)
+          expect(mockCtxAfterOn.body).to.equal('OK')
+          expect(mockCtxSecondAfterOn.status).to.equal(200)
+          expect(mockCtxSecondAfterOn.body).to.equal('OK')
         })
 
-        it('should support of JSON w/ comments', () => {
-          const mockReq     = { method: 'GET', url: '/api/user/1' } as any
-          const mockRes1    = mockRes(sinon)
-          const mockNext    = sinon.fake()
+        it('should support of JSON w/ comments', async() => {
+          const mockCtx = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockNext = () => Promise.resolve()
           const mockJsonDef = `
             {
               "code": 200,
@@ -96,83 +111,105 @@ describe('Server', () => {
           const middleware = msm.middleware()
           const server     = msm.server
 
-          server.on(mockReq.method, mockReq.url, mockJsonDef)
-          middleware(mockReq, mockRes1, mockNext)
+          server.on('GET', '/api/user/1', mockJsonDef)
+          await middleware(mockCtx, mockNext)
 
-          clock.runAll()
-
-          expect(mockRes1.statusCode).to.equal(200)
-          expect(mockRes1.end).to.have.been.calledWith('"OK"')
+          expect(mockCtx.status).to.equal(200)
+          expect(mockCtx.body).to.equal('OK')
         })
       })
 
       describe('server#off()', () => {
-        it('should cancel all "server#on()" if neither parameters given', () => {
-          const mockReq1          = { method: 'GET', url: '/api/user/1' } as any
-          const mockReq2          = { method: 'GET', url: '/api/user/2' } as any
-          const mockRes1BeforeOff = mockRes(sinon)
-          const mockRes2BeforeOff = mockRes(sinon)
-          const mockRes1AfterOff  = mockRes(sinon)
-          const mockRes2AfterOff  = mockRes(sinon)
-          const mockNext          = sinon.fake()
-          const expectedResponse  = { code: 200, body: 'OK' }
+        it('should cancel all "server#on()" if neither parameters given', async() => {
+          const mockCtx1Before = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx2Before = {
+            request: { method: 'GET', url: '/api/user/2' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx1After = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx2After = {
+            request: { method: 'GET', url: '/api/user/2' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockNext = () => Promise.resolve()
+          const expectedResponse = { code: 200, body: 'OK' }
 
           const msm        = new MSM(mockConfig)
           const middleware = msm.middleware()
           const server     = msm.server
 
-          server.on(mockReq1.method, mockReq1.url, expectedResponse)
-          server.on(mockReq2.method, mockReq2.url, expectedResponse)
-          middleware(mockReq1, mockRes1BeforeOff, mockNext)
-          middleware(mockReq2, mockRes2BeforeOff, mockNext)
+          server.on('GET', '/api/user/1', expectedResponse)
+          server.on('GET', '/api/user/2', expectedResponse)
+          await middleware(mockCtx1Before, mockNext)
+          await middleware(mockCtx2Before, mockNext)
           server.off()
-          middleware(mockReq1, mockRes1AfterOff, mockNext)
-          middleware(mockReq2, mockRes2AfterOff, mockNext)
+          await middleware(mockCtx1After, mockNext)
+          await middleware(mockCtx2After, mockNext)
 
-          clock.runAll()
-
-          expect(mockRes1BeforeOff.statusCode).to.equal(200)
-          expect(mockRes2BeforeOff.statusCode).to.equal(200)
-          expect(mockRes1BeforeOff.end).to.have.been.calledWith('"OK"')
-          expect(mockRes2BeforeOff.end).to.have.been.calledWith('"OK"')
-          expect(mockRes1AfterOff.statusCode).to.equal(404)
-          expect(mockRes2AfterOff.statusCode).to.equal(404)
+          expect(mockCtx1Before.status).to.equal(200)
+          expect(mockCtx2Before.status).to.equal(200)
+          expect(mockCtx1Before.body).to.equal('OK')
+          expect(mockCtx2Before.body).to.equal('OK')
+          expect(mockCtx1After.status).to.equal(404)
+          expect(mockCtx2After.status).to.equal(404)
         })
 
-        it('should only cancel the specified path of ".on()" if both parameters given', () => {
-          const mockReq1          = { method: 'GET', url: '/api/user/1' } as any
-          const mockReq2          = { method: 'GET', url: '/api/user/2' } as any
-          const mockRes1BeforeOff = mockRes(sinon)
-          const mockRes2BeforeOff = mockRes(sinon)
-          const mockRes1AfterOff  = mockRes(sinon)
-          const mockRes2AfterOff  = mockRes(sinon)
-          const mockNext          = sinon.fake()
-          const expectedResponse  = { code: 200, body: 'OK' }
+        it('should only cancel the specified path of ".on()" if both parameters given', async() => {
+          const mockCtx1Before = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx2Before = {
+            request: { method: 'GET', url: '/api/user/2' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx1After = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockCtx2After = {
+            request: { method: 'GET', url: '/api/user/2' },
+            set    : sinon.fake(),
+          } as any as Context
+
+          const mockNext = () => Promise.resolve()
+          const expectedResponse = { code: 200, body: 'OK' }
 
           const msm        = new MSM(mockConfig)
           const middleware = msm.middleware()
           const server     = msm.server
 
-          server.on(mockReq1.method, mockReq1.url, expectedResponse)
-          server.on(mockReq2.method, mockReq2.url, expectedResponse)
-          middleware(mockReq1, mockRes1BeforeOff, mockNext)
-          middleware(mockReq2, mockRes2BeforeOff, mockNext)
-          server.off(mockReq1.method, mockReq1.url)
-          middleware(mockReq1, mockRes1AfterOff, mockNext)
-          middleware(mockReq2, mockRes2AfterOff, mockNext)
+          server.on('GET', '/api/user/1', expectedResponse)
+          server.on('GET', '/api/user/2', expectedResponse)
+          await middleware(mockCtx1Before, mockNext)
+          await middleware(mockCtx2Before, mockNext)
+          server.off('GET', '/api/user/1')
+          await middleware(mockCtx1After, mockNext)
+          await middleware(mockCtx2After, mockNext)
 
-          clock.runAll()
-
-          expect(mockRes1BeforeOff.statusCode).to.equal(200)
-          expect(mockRes2BeforeOff.statusCode).to.equal(200)
-          expect(mockRes1BeforeOff.end).to.have.been.calledWith('"OK"')
-          expect(mockRes2BeforeOff.end).to.have.been.calledWith('"OK"')
-          expect(mockRes1AfterOff.statusCode).to.equal(404)
-          expect(mockRes2AfterOff.statusCode).to.equal(200)
-          expect(mockRes2BeforeOff.end).to.have.been.calledWith('"OK"')
+          expect(mockCtx1Before.status).to.equal(200)
+          expect(mockCtx2Before.status).to.equal(200)
+          expect(mockCtx1Before.body).to.equal('OK')
+          expect(mockCtx2Before.body).to.equal('OK')
+          expect(mockCtx1After.status).to.equal(404)
+          expect(mockCtx2After.status).to.equal(200)
+          expect(mockCtx2Before.body).to.equal('OK')
         })
 
-        it('should throw an error if only one parameter given', () => {
+        it('should throw an error if only one parameter given', async() => {
           const msm    = new MSM(mockConfig)
           const server = msm.server
 
@@ -184,34 +221,49 @@ describe('Server', () => {
     })
 
     describe('response recording ::', () => {
-      it('should only start recording once called "server#record()"', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockReq2 = { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } } as any
-        const mockReq3 = { method: 'DELETE', url: '/api/user/3?param=value' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
-
+      it('should only start recording once called "server#record()"', async() => {
+        const mockCtx1 = {
+          request: { method: 'GET', url: '/api/user/1' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx2 = {
+          request: { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx3 = {
+          request: { method: 'DELETE', url: '/api/user/3?param=value' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockNext = () => Promise.resolve()
 
         const msm        = new MSM(mockConfig)
         const middleware = msm.middleware()
         const server     = msm.server
 
-        middleware(mockReq1, mockRes1, mockNext)
+        await middleware(mockCtx1, mockNext)
 
         server.record()
 
-        middleware(mockReq2, mockRes1, mockNext)
-        middleware(mockReq3, mockRes1, mockNext)
+        await middleware(mockCtx2, mockNext)
+        await middleware(mockCtx3, mockNext)
 
         expect(server.called().length).to.equal(2)
       })
 
-      it('should filter the requests if passing parameters to "server#called()"', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockReq2 = { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } } as any
-        const mockReq3 = { method: 'DELETE', url: '/api/user/3?param=value' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
+      it('should filter the requests if passing parameters to "server#called()"', async() => {
+        const mockCtx1 = {
+          request: { method: 'GET', url: '/api/user/1' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx2 = {
+          request: { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx3 = {
+          request: { method: 'DELETE', url: '/api/user/3?param=value' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockNext = () => Promise.resolve()
 
 
         const msm        = new MSM(mockConfig)
@@ -220,9 +272,9 @@ describe('Server', () => {
 
         server.record()
 
-        middleware(mockReq1, mockRes1, mockNext)
-        middleware(mockReq2, mockRes1, mockNext)
-        middleware(mockReq3, mockRes1, mockNext)
+        await middleware(mockCtx1, mockNext)
+        await middleware(mockCtx2, mockNext)
+        await middleware(mockCtx3, mockNext)
 
         expect(server.called().length).to.equal(3)
         expect(server.called(undefined, 'GET').length).to.equal(1)
@@ -231,12 +283,20 @@ describe('Server', () => {
         expect(server.called(/.*\/user\/\d+$/, 'POST').length).to.equal(1)
       })
 
-      it('should stop recording once called "server#stopRecording()"', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockReq2 = { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } } as any
-        const mockReq3 = { method: 'DELETE', url: '/api/user/3?param=value' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
+      it('should stop recording once called "server#stopRecording()"', async() => {
+        const mockCtx1 = {
+          request: { method: 'GET', url: '/api/user/1' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx2 = {
+          request: { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx3 = {
+          request: { method: 'DELETE', url: '/api/user/3?param=value' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockNext = () => Promise.resolve()
 
 
         const msm        = new MSM(mockConfig)
@@ -245,22 +305,30 @@ describe('Server', () => {
 
         server.record()
 
-        middleware(mockReq1, mockRes1, mockNext)
-        middleware(mockReq2, mockRes1, mockNext)
+        await middleware(mockCtx1, mockNext)
+        await middleware(mockCtx2, mockNext)
 
         server.stopRecording()
 
-        middleware(mockReq3, mockRes1, mockNext)
+        await middleware(mockCtx3, mockNext)
 
         expect(server.called().length).to.equal(2)
       })
 
-      it('should remove all logs once called "server#flush()', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockReq2 = { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } } as any
-        const mockReq3 = { method: 'DELETE', url: '/api/user/3?param=value' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
+      it('should remove all logs once called "server#flush()', async() => {
+        const mockCtx1 = {
+          request: { method: 'GET', url: '/api/user/1' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx2 = {
+          request: { method: 'POST', url: '/api/user/2', body: { id: 1, name: 'tester' } },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockCtx3 = {
+          request: { method: 'DELETE', url: '/api/user/3?param=value' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockNext = () => Promise.resolve()
 
         const msm        = new MSM(mockConfig)
         const middleware = msm.middleware()
@@ -268,9 +336,9 @@ describe('Server', () => {
 
         server.record()
 
-        middleware(mockReq1, mockRes1, mockNext)
-        middleware(mockReq2, mockRes1, mockNext)
-        middleware(mockReq3, mockRes1, mockNext)
+        await middleware(mockCtx1, mockNext)
+        await middleware(mockCtx2, mockNext)
+        await middleware(mockCtx3, mockNext)
 
         expect(server.called().length).to.equal(3)
 
@@ -279,7 +347,7 @@ describe('Server', () => {
         expect(server.called().length).to.equal(0)
       })
 
-      it('should throw error if start when already started recording', () => {
+      it('should throw error if start when already started recording', async() => {
         const msm    = new MSM(mockConfig)
         const server = msm.server
 
@@ -288,37 +356,44 @@ describe('Server', () => {
         expect(() => { server.record() }).to.throw()
       })
 
-      it('should not start recording if the previous stopped recording hasn\'t been flushed', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
+      it('should not start recording if the previous stopped recording hasn\'t been flushed', async() => {
+        const mockCtx1 = {
+          request: { method: 'GET', url: '/api/user/1' },
+          set    : sinon.fake(),
+        } as any as Context
+        const mockNext = () => Promise.resolve()
 
         const msm        = new MSM(mockConfig)
         const middleware = msm.middleware()
         const server     = msm.server
 
         server.record()
-        middleware(mockReq1, mockRes1, mockNext)
+        await middleware(mockCtx1, mockNext)
         server.stopRecording()
 
         expect(() => { server.record() }).to.throw()
       })
 
-      it('should allow to start recording even the previous haven\'t been flushed if explicitly requested to', () => {
-        const mockReq1 = { method: 'GET', url: '/api/user/1' } as any
-        const mockRes1 = mockRes(sinon)
-        const mockNext = sinon.fake()
+      it(
+        'should allow to start recording even the previous haven\'t been flushed if explicitly requested to',
+        async() => {
+          const mockCtx1 = {
+            request: { method: 'GET', url: '/api/user/1' },
+            set    : sinon.fake(),
+          } as any as Context
+          const mockNext = () => Promise.resolve()
 
-        const msm        = new MSM(mockConfig)
-        const middleware = msm.middleware()
-        const server     = msm.server
+          const msm        = new MSM(mockConfig)
+          const middleware = msm.middleware()
+          const server     = msm.server
 
-        server.record()
-        middleware(mockReq1, mockRes1, mockNext)
-        server.stopRecording()
+          server.record()
+          await middleware(mockCtx1, mockNext)
+          server.stopRecording()
 
-        expect(() => { server.record(true) }).not.to.throw()
-      })
+          expect(() => { server.record(true) }).not.to.throw()
+        },
+      )
     })
   })
 })

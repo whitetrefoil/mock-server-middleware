@@ -1,10 +1,15 @@
-import { SinonSandbox } from 'sinon'
-import { IResponse } from '../src/msm'
+import { Context } from 'koa'
+import { SinonStatic } from 'sinon'
 
-export function mockRes(sandbox: SinonSandbox) {
+export function mockCtx(sinon: SinonStatic, request: any = { method: 'GET', url: '/' }) {
   return {
-    statusCode: null,
-    setHeader : sandbox.stub(),
-    end       : sandbox.stub(),
-  } as any as IResponse
+    request,
+    set   : sinon.fake(),
+    status: null,
+    body  : null,
+  } as any as Context
+}
+
+export function mockNext() {
+  return () => Promise.resolve()
 }

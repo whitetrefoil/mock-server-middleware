@@ -1,19 +1,42 @@
 import chai, { expect } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { IncomingMessage } from 'http'
 import path from 'path'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
+import { IMockServerConfig } from '../src/config'
 import { LogLevel } from '../src/logger'
-import { IMockServerConfig } from '../src/msm'
-import { composeModulePath } from '../src/utils'
-import { mockRes } from './helpers'
+import { composeModulePath, delay } from '../src/utils'
+import { mockCtx, mockNext } from './helpers'
 
 chai.use(sinonChai)
+chai.use(chaiAsPromised)
 
 describe('Utilities', () => {
 
   afterEach(() => {
     sinon.restore()
+  })
+
+  describe('.delay', () => {
+    it('should resolve after specified duration', async() => {
+      const clock = sinon.useFakeTimers()
+
+      let resolved = false
+
+      delay(10).then(() => {
+        resolved = true
+      })
+
+      clock.tick(5)
+      await Promise.resolve()
+      expect(resolved).to.be.false
+
+
+      clock.tick(5)
+      await Promise.resolve()
+      expect(resolved).to.be.true
+    })
   })
 
   describe('.composeModulePath()', () => {
@@ -25,11 +48,12 @@ describe('Utilities', () => {
     const basicConfig: Required<IMockServerConfig> = {
       apiPrefixes  : [],
       apiDir       : 'stubapi',
+      logLevel     : LogLevel.WARN,
       lowerCase    : false,
       nonChar      : '-',
+      overwriteMode: false,
       ping         : 0,
       preserveQuery: false,
-      logLevel     : LogLevel.WARN,
     }
 
     it('should basically works', () => {
@@ -62,11 +86,12 @@ describe('Utilities', () => {
         expect(composeModulePath(mockReq, {
           apiPrefixes  : [],
           apiDir       : 'TEST_DIR',
+          logLevel     : LogLevel.WARN,
           lowerCase    : true,
           nonChar      : 'T',
+          overwriteMode: false,
           ping         : 0,
           preserveQuery: true,
-          logLevel     : LogLevel.WARN,
         }))
           .to.equal(path.join(process.cwd(), 'TEST_DIR/post/testTsomething/urlTitem/1TasdfT1234'))
       })
@@ -83,7 +108,7 @@ describe('Utilities', () => {
   })
 
   describe('.convertJsonToHandler()', () => {
-    it('should basically works', () => {
+    it('should basically works', async() => {
       const { convertJsonToHandler } = require('../src/utils')
 
       const jsonDef = {
@@ -96,17 +121,18 @@ describe('Utilities', () => {
         },
       }
 
+      const mockCtx1 = mockCtx(sinon)
+
       const handler = convertJsonToHandler(jsonDef)
 
       expect(typeof handler).to.equal('function')
 
-      const res = mockRes(sinon)
-      handler(null, res)
+      await handler(mockCtx1, mockNext())
 
-      expect(res.statusCode).to.equal(201)
-      expect(res.setHeader).to.have.been.calledWith('Content-Type', 'application/json')
-      expect(res.setHeader).to.have.been.calledWith('X-Test-Header', 'test')
-      expect(res.end).to.have.been.calledWith('{\n  "test": 1\n}')
+      expect(mockCtx1.status).to.equal(201)
+      expect(mockCtx1.set).to.have.been.calledWith('Content-Type', 'application/json')
+      expect(mockCtx1.set).to.have.been.calledWith('X-Test-Header', 'test')
+      expect(mockCtx1.body).to.deep.equal({ test: 1 })
     })
   })
 

@@ -2,17 +2,18 @@
 
 import chalk from 'chalk'
 import clearRequire from 'clear-require'
-import { NextHandleFunction } from 'connect'
 import * as fs from 'fs'
-import { IncomingMessage, ServerResponse } from 'http'
+import { Middleware } from 'koa'
 import * as _ from 'lodash'
 import * as path from 'path'
 import stripJsonComments from 'strip-json-comments'
+import { IParsedServerConfig } from './config'
 import Logger from './logger'
-import { IJsonApiDefinition, IMockServerConfig } from './msm'
+import { IJsonApiDefinition } from './msm'
 import { IOverrideStore } from './server'
 
 // endregion
+
 
 // region - Constants
 
@@ -21,30 +22,23 @@ const { green, yellow } = chalk
 
 // endregion
 
-export function ensureProperties<T, P extends keyof T>(
-  obj: T,
-  props: P[],
-  message?: string,
-): Require<T, P> {
-  for (const prop of props) {
-    if (obj[prop] == null) {
-      throw new Error(message || `Missing "${prop}" in ${obj}`)
-    }
-  }
-  return obj as Require<T, P>
+
+// region - Interfaces
+
+interface IRule {
+  method?: string
+  url?: string
 }
 
-export function ensureUrl<T extends IncomingMessage>(req: T): Require<T, 'url'> {
-  return ensureProperties(req, ['url'], 'Missing "url" in request, something must be wrong in config.')
-}
+// endregion
 
-export function ensureMethod<T extends IncomingMessage>(req: T): Require<T, 'method'> {
-  return ensureProperties(req, ['method'], 'Missing "method" in request, something must be wrong in config.')
+export async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export function composeModulePath(
-  { url, method }: Required<Pick<IncomingMessage, 'url'|'method'>>,
-  config: Required<IMockServerConfig>,
+  { url, method }: Required<IRule>,
+  config: IParsedServerConfig,
 ): string {
   let modulePath = url
 
@@ -67,14 +61,15 @@ export function isJsonApiDefinition(obj: object): obj is IJsonApiDefinition {
   return obj != null && obj.hasOwnProperty('body')
 }
 
-export function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFunction {
-  return (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    res.statusCode = json.code || 200
-    res.setHeader('Content-Type', 'application/json')
+export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
+  return async(ctx, next) => {
+    await next()
+    ctx.status = json.code || 200
+    ctx.set('Content-Type', 'application/json')
     _.forEach(json.headers, (val, name) => {
-      res.setHeader(name, val)
+      ctx.set(name, val)
     })
-    res.end(JSON.stringify(json.body, null, 2))
+    ctx.body = json.body
   }
 }
 
@@ -85,7 +80,7 @@ export function convertJsonToHandler(json: IJsonApiDefinition): NextHandleFuncti
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleFunction|undefined {
+export function readJsonDefFromFs(filePath: string, logger: Logger): Middleware|undefined {
   // if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
   const formattedPath = path.extname(filePath) === '.json' ? filePath : `${filePath}.json`
 
@@ -112,7 +107,7 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): NextHandleF
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFunction|undefined {
+export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|undefined {
   // if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
   const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`
 
@@ -134,13 +129,17 @@ export function readJsDefFromFs(filePath: string, logger: Logger): NextHandleFun
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function loadModuleFromFs(modulePath: string, logger: Logger): any {
+export function loadModuleFromFs(modulePath: string, logger: Logger): Middleware|undefined {
   let handler
 
   const extname = path.extname(modulePath)
 
-  if (extname === '.json' || extname === '') { handler = readJsonDefFromFs(modulePath, logger) }
-  if (handler != null) { return handler }
+  if (extname === '.json' || extname === '') {
+    handler = readJsonDefFromFs(modulePath, logger)
+  }
+  if (handler != null) {
+    return handler
+  }
 
   return readJsDefFromFs(modulePath, logger)
 }
@@ -149,9 +148,9 @@ export function loadModuleFromOverrides(
   modulePath: string,
   overrides: IOverrideStore,
   logger: Logger,
-): NextHandleFunction|undefined {
+): Middleware|undefined {
   const loaded = overrides[modulePath]
-  let handler: NextHandleFunction
+  let handler: Middleware
 
   if (loaded == null) {
     return
@@ -167,8 +166,8 @@ export function loadModuleFromOverrides(
   return handler
 }
 
-export function loadModule(modulePath: string, overrides: IOverrideStore, logger: Logger): NextHandleFunction {
-  let handler: NextHandleFunction|undefined
+export function loadModule(modulePath: string, overrides: IOverrideStore, logger: Logger): Middleware {
+  let handler: Middleware|undefined
 
   handler = loadModuleFromOverrides(modulePath, overrides, logger)
   if (handler != null) {
