@@ -260,7 +260,7 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
-### v0.5.0-alpha.4
+### v0.6.0-alpha.1
 
 * Added recorder function.
 * **BREAKING** Migrate the middleware to Koa.
