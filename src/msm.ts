@@ -1,24 +1,28 @@
 // region - Imports
 
 import { NextHandleFunction } from 'connect'
-import { IncomingMessage, ServerResponse } from 'http'
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'http'
 import { Middleware } from 'koa'
 import * as _ from 'lodash'
 import { parse as parseUrl } from 'url'
 import { IMockServerConfig, IParsedServerConfig, setOptions } from './config'
 import Logger, { LogLevel } from './logger'
 import MSMServer from './server'
-import { composeModulePath, delay, loadModule, loadModuleFromFs, saveModule } from './utils'
+import { composeModulePath, delay, loadModule, saveModule } from './utils'
 
 // endregion
 
 // region - Interfaces
 
+export interface IHttpRequestHeaders {
+  [name: string]: string|string[]|undefined
+}
+
 export interface IJsonApiDefinition {
   /** HTTP response status code. */
   code?: number
   /** Custom HTTP response headers. */
-  headers?: object
+  headers?: IncomingHttpHeaders
   /** Response body.  Any valid JSON format can be used. */
   body: any
 }

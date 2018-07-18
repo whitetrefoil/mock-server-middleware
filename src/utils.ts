@@ -1,7 +1,6 @@
 import chalk from 'chalk'
 import clearRequire from 'clear-require'
 import * as fs from 'fs'
-import { ServerResponse } from 'http'
 import { Context, Middleware } from 'koa'
 import * as _ from 'lodash'
 import * as path from 'path'
@@ -64,7 +63,11 @@ export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
     ctx.status = json.code || 200
     ctx.set('Content-Type', 'application/json')
     _.forEach(json.headers, (val, name) => {
-      ctx.set(name, val)
+      if (val != null) {
+        ctx.set(name, val)
+      } else {
+        ctx.remove(name)
+      }
     })
     ctx.body = json.body
   }
@@ -184,11 +187,11 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
 
 
 export async function saveModule(ctx: Context, config: IParsedServerConfig, logger: Logger) {
-  const method = ctx.method
-  const url = ctx.url
+  const method  = ctx.method
+  const url     = ctx.url
   const headers = ctx.headers
-  const body = ctx.body
-  const fp = composeModulePath(ctx.request, config)
+  const body    = ctx.body
+  const fp      = composeModulePath(ctx.request, config)
   logger.info(`${method} ${url}`)
   logger.debug(`should located at: ${fp}`)
   const existed = loadModuleFromFs(fp, logger)
@@ -198,10 +201,37 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
     return
   }
 
+  const code = ctx.status
+  if (code === 404) {
+    logger.warn(`Response status 404, skipping...`)
+    return
+  }
+
   logger.warn(`No definition file found, saving to :${fp}.json`)
 
   logger.info(`Method: ${method}`)
   logger.info(`URL: ${url}`)
   logger.info(`Headers: ${headers}`)
   logger.info(`Body: ${body}`)
+
+  const jsonToWrite: IJsonApiDefinition = {
+    code,
+    headers: {},
+    body   : JSON.stringify(body, null, 2),
+  }
+
+  for (const name of config.saveHeaders) {
+    const value = ctx.get(name)
+    if (value != null) {
+      jsonToWrite.headers![name] = value
+    }
+  }
+
+  fs.writeFile(`${fp}.json`, JSON.stringify(jsonToWrite, null, 2), 'utf8', (err) => {
+    if (err != null) {
+      logger.error(`Failed to save definition file: ${fp}.json`)
+    } else {
+      logger.info(`Definition file "${fp}.json" saved!`)
+    }
+  })
 }
