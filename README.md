@@ -23,38 +23,31 @@ How To Use (Simplest Example)
 -----------------------------
 
 Gulpfile.js:
-```javascript
-const bodyParser = require('body-parser')
-const gulp       = require('gulp')
-const connect    = require('gulp-connect')
-const { MSM }    = require('mock-server-middleware')
+```typescript
+import gulp from 'gulp'
+import { bodyParser, Koa, LogLevel, MSM } from 'mock-server-middleware'
 
-const msm = new MSM({
-  // If a request path starts like one of below,
-  // it will be handled by the mock server,
-  // otherwise it will call `next()` to pass the request to the next middleware.
-  apiPrefixes: ['/user-service/', '/auth-service/', '/payment-service/'],
-  // Where the API definition files locate.  Related to PWD.
-  apiDir     : 'myMockFilesInThisDir',
-  // Replace /[^\w\d]/g to this when looking for API definition files.
-  nonChar    : '-',
-})
+gulp.task('backend', (done) => {
+  const app = new Koa()
 
-gulp.task('serve', () => {
-  connect.server({
-    root      : ['mySrcDir'],
-    port      : 12345,
-    fallback  : 'mySrcDir/index.html',
-    middleware: () => {
-      const middlewareList = [bodyParser.json()]
+  console.log('Will use StubAPI mode.')
 
-      console.log('Using "mock-server-middleware"...')
-      middlewareList.push(msm.middleware())
+  const msm = new MSM({
+    // If a request path starts like one of below,
+    // it will be handled by the mock server,
+    // otherwise it will call `next()` to pass the request to the next middleware.
+    apiPrefixes: ['/user-service/', '/auth-service/', '/payment-service/'],
+    // Where the API definition files locate.  Related to PWD.
+    apiDir     : 'myMockFilesInThisDir',
+    logLevel   : LogLevel.WARN,
+  })
 
-      // Push any other middleware you want.
+  app.use(bodyParser())
+  app.use(msm.middleware())
 
-      return middlewareList
-    },
+  app.listen(8889, () => {
+    console.log(`Backend server listening at port 8889`)
+    done()
   })
 })
 ```
@@ -79,36 +72,31 @@ myMockFilesInThisDir/get/user-service/users.json
 
 myMockFilesInThisDir/post/user-service/user/1.js
 ```javascript
-module.exports = (req, res) => {
+module.exports = async(ctx, next) => {
+  await next()
+  
   let body = ''
 
-  res.setHeader('Content-Type', 'text/json; charset=UTF-8')
+  ctx.set('Content-Type', 'text/json; charset=UTF-8')
 
-  req.on('data', chunk => {
-    body += chunk
-  })
-
-  req.on('end', () => {
-    try {
-      body = JSON.parse(body)
-      res.statusCode = 200
-      res.end(JSON.stringify({
-        _code   : 0,
-        _message: 'OK',
-        data    : {
-          id  : 1,
-          name: body.name,
-        },
-      }, null, 2))
-    } catch (e) {
-      res.statusCode = 200
-      res.end(JSON.stringify({
-        _code   : 255,
-        _message: 'Bad JSON format.',
-        data    : {},
-      }, null, 2))
+  try {
+    ctx.status = 200
+    ctx.body = {
+      _code   : 0,
+      _message: 'OK',
+      data    : {
+        id  : 1,
+        name: body.name,
+      },
     }
-  })
+  } catch (e) {
+    ctx.status = 400
+    ctx.body = {
+      _code   : 255,
+      _message: 'Bad JSON format.',
+      data    : {},
+    }
+  }
 }
 ```
 
@@ -166,17 +154,19 @@ Available options:
   it will be handled by the mock server,
   otherwise it will call `next()` to pass the request to the next middleware.
 * `apiDir?: string` - Where the API definition files locate.  Related to PWD.
-* `nonChar?: string` - Replace `/[^a-zA-Z0-9/]/g` to this when looking for API definition files.
+* `logLevel?: LogLevel` - Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'. Can be a `LogLevel` enum if using TypeScript, otherwise a string like `"INFO"` is acceptable.
 * `lowerCase?: boolean` - Whether to unify all cases to lower case.
+* `nonChar?: string` - Replace `/[^a-zA-Z0-9/]/g` to this when looking for API definition files.
+* `overwriteMode?: boolean` - Whether to overwrite existing definition file. Only take effect when using "recorder" middleware.
+* `saveHeaders?: string[]` - Specific some headers to save in "recorder" mode.
 * `ping?: number` - Delay before response, in ms.
 * `preserveQuery?: boolean` - Do not strip query in URL (instead replace '?' with nonChar).
 
 ### `msm.middleware()`
 
-This will return a connect compatible middleware (accepts `req`, `res`, `next`)
-which can also be used with Express / restify / etc.
+This will return a Koa compatible middleware.
 
-Use this with the preview server (gulp-connect, webpack-dev-server, etc.)
+Use this with the preview server (webpack-serve, webpack-dev-server, etc.)
 to simulate the backend server.
 
 ### `msm.server`
@@ -269,6 +259,11 @@ This is the spec of the API definition files in JSON.
 
 Changelog
 ---------
+
+### v0.5.0-alpha.4
+
+* Added recorder function.
+* **BREAKING** Migrate the middleware to Koa.
 
 ### v0.5.0-alpha.3
 
