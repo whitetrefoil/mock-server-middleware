@@ -186,6 +186,20 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
 }
 
 
+function parseBody(ctx: Context): string {
+  const body    = ctx.body
+  const rawType = ctx.response.get('Content-Type')
+  const match   = rawType.match(/^\w*\/\w*/)
+  const type    = match == null ? null : match[0]
+  if (type === 'application/json') {
+    return JSON.parse(body)
+  }
+
+  const base64 = Buffer.from(body).toString('base64')
+  return `data:${type};base64,${base64}`
+}
+
+
 export async function saveModule(ctx: Context, config: IParsedServerConfig, logger: Logger) {
   const method  = ctx.method
   const url     = ctx.url
@@ -212,12 +226,14 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
   logger.info(`Method: ${method}`)
   logger.info(`URL: ${url}`)
   logger.info(`Headers: ${headers}`)
-  logger.info(`Body: ${body}`)
+  // logger.info(`Body: ${body}`)
+
+  const parsedBody = parseBody(ctx)
 
   const jsonToWrite: IJsonApiDefinition = {
     code,
     headers: {},
-    body   : JSON.stringify(body, null, 2),
+    body   : parsedBody,
   }
 
   for (const name of config.saveHeaders) {
