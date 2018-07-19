@@ -160,7 +160,6 @@ Available options:
 * `overwriteMode?: boolean` - Whether to overwrite existing definition file. Only take effect when using "recorder" middleware.
 * `saveHeaders?: string[]` - Specific some headers to save in "recorder" mode.
 * `ping?: number` - Delay before response, in ms.
-* `preserveQuery?: boolean` - Do not strip query in URL (instead replace '?' with nonChar).
 
 ### `msm.middleware()`
 
@@ -260,10 +259,16 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.6.0-alpha.2
+
+* **!!!BREAKING!!!** Now in normal mode it will first try to read from path with query preserved.
+  If failed, then try the one without query.
+* **!!!BREAKING!!!** `preserveQuery` option in config is removed due to above.
+
 ### v0.6.0-alpha.1
 
 * Added recorder function.
-* **BREAKING** Migrate the middleware to Koa.
+* **!!!BREAKING!!!** Migrate the middleware to Koa.
 
 ### v0.5.0-alpha.3
 
