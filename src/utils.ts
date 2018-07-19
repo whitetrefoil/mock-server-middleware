@@ -213,6 +213,8 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
   logger.info(`${method} ${url}`)
   logger.debug(`should located at: ${fp}`)
   const existed = loadModuleFromFs(fp, logger)
+                  || loadModuleFromFs(composeModulePath(ctx.request, config, false), logger)
+                  || undefined
 
   if (existed != null) {
     logger.info('Definition exists...')
