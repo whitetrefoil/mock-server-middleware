@@ -259,6 +259,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.6.0-alpha.3
+
+* Fix the bug cause recorder save definition when the "non-query" version has already existed.
+
 ### v0.6.0-alpha.2
 
 * **!!!BREAKING!!!** Now in normal mode it will first try to read from path with query preserved.
