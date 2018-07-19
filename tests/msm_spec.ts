@@ -18,12 +18,13 @@ describe('MSM', () => {
     const msm = new MSM()
     expect(msm.apiPrefixes).to.deep.equal(['/api/'])
     expect(msm.apiDir).to.equal('stubapi')
-    expect(msm.nonChar).to.equal('-')
-    expect(msm.lowerCase).to.be.false
-    expect(msm.ping).to.equal(0)
-    expect(msm.preserveQuery).to.be.false
-    expect(msm.logLevel).to.equal(LogLevel.NONE)
     expect(msm.logger).to.be.instanceOf(Logger)
+    expect(msm.logLevel).to.equal(LogLevel.NONE)
+    expect(msm.lowerCase).to.be.false
+    expect(msm.nonChar).to.equal('-')
+    expect(msm.overwriteMode).to.be.false
+    expect(msm.ping).to.equal(0)
+    expect(msm.saveHeaders).to.deep.equal([])
     expect(msm.server).to.be.instanceOf(MSMServer)
   })
 
@@ -33,19 +34,21 @@ describe('MSM', () => {
     const msm = new MSM({
       apiPrefixes  : ['a'],
       apiDir       : 'b',
-      nonChar      : 'c',
-      lowerCase    : true,
-      ping         : 123,
-      preserveQuery: true,
       logLevel     : LogLevel.INFO,
+      lowerCase    : true,
+      nonChar      : 'c',
+      overwriteMode: true,
+      ping         : 123,
+      saveHeaders  : ['asdf'],
     })
     expect(msm.apiPrefixes).to.deep.equal(['a'])
     expect(msm.apiDir).to.equal('b')
-    expect(msm.nonChar).to.equal('c')
-    expect(msm.lowerCase).to.be.true
-    expect(msm.ping).to.equal(123)
-    expect(msm.preserveQuery).to.be.true
     expect(msm.logLevel).to.equal(LogLevel.INFO)
+    expect(msm.lowerCase).to.be.true
+    expect(msm.nonChar).to.equal('c')
+    expect(msm.overwriteMode).to.be.true
+    expect(msm.ping).to.equal(123)
+    expect(msm.saveHeaders).to.deep.equal(['asdf'])
   })
 
   describe.skip('Server related functionality', () => {

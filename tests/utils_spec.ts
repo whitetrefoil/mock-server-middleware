@@ -4,7 +4,7 @@ import { IncomingMessage } from 'http'
 import path from 'path'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { IMockServerConfig } from '../src/config'
+import { IParsedServerConfig } from '../src/config'
 import { LogLevel } from '../src/logger'
 import { composeModulePath, delay } from '../src/utils'
 import { mockCtx, mockNext } from './helpers'
@@ -45,21 +45,16 @@ describe('Utilities', () => {
       method: 'POST',
     } as any as Required<IncomingMessage>
 
-    const basicConfig: Required<IMockServerConfig> = {
+    const basicConfig: IParsedServerConfig = {
       apiPrefixes  : [],
       apiDir       : 'stubapi',
       logLevel     : LogLevel.WARN,
       lowerCase    : false,
       nonChar      : '-',
+      saveHeaders  : [],
       overwriteMode: false,
       ping         : 0,
-      preserveQuery: false,
     }
-
-    it('should basically works', () => {
-      expect(composeModulePath(mockReq, basicConfig))
-        .to.equal(path.join(process.cwd(), 'stubapi/post/Test-Something/Url-item/1'))
-    })
 
     describe('config', () => {
       it('should work with #apiDir', () => {
@@ -77,11 +72,6 @@ describe('Utilities', () => {
           .to.equal(path.join(process.cwd(), 'stubapi/post/Test+Something/Url+item/1'))
       })
 
-      it('should work with #preserveQuery', () => {
-        expect(composeModulePath(mockReq, { ...basicConfig, preserveQuery: true }))
-          .to.equal(path.join(process.cwd(), 'stubapi/post/Test-Something/Url-item/1-asdf-1234'))
-      })
-
       it('should work with multiple config options', () => {
         expect(composeModulePath(mockReq, {
           apiPrefixes  : [],
@@ -89,10 +79,10 @@ describe('Utilities', () => {
           logLevel     : LogLevel.WARN,
           lowerCase    : true,
           nonChar      : 'T',
+          saveHeaders  : [],
           overwriteMode: false,
           ping         : 0,
-          preserveQuery: true,
-        }))
+        }, true))
           .to.equal(path.join(process.cwd(), 'TEST_DIR/post/testTsomething/urlTitem/1TasdfT1234'))
       })
 
@@ -101,9 +91,19 @@ describe('Utilities', () => {
           url   : '/Test_Something/Url-item/1?asdf=1234#zxcv?qwe=987654',
           method: 'POST',
         } as any as Required<IncomingMessage>
-        expect(composeModulePath(mockReqWithHash, { ...basicConfig, preserveQuery: true }))
+        expect(composeModulePath(mockReqWithHash, { ...basicConfig }, true))
           .to.equal(path.join(process.cwd(), 'stubapi/post/Test-Something/Url-item/1-asdf-1234'))
       })
+    })
+
+    it('should ignore query by default', () => {
+      expect(composeModulePath(mockReq, basicConfig))
+        .to.equal(path.join(process.cwd(), 'stubapi/post/Test-Something/Url-item/1'))
+    })
+
+    it('should preserve query if required', () => {
+      expect(composeModulePath(mockReq, { ...basicConfig, nonChar: 'Z' }, true))
+        .to.equal(path.join(process.cwd(), 'stubapi/post/TestZSomething/UrlZitem/1ZasdfZ1234'))
     })
   })
 

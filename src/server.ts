@@ -52,7 +52,7 @@ export default class MSMServer {
     })
   }
 
-  once(method: string, calledUrl: string, override: IDefinition) {
+  once(method: string, calledUrl: string, override: IDefinition, preserveQuery = false) {
     const req = { url: calledUrl, method }
 
     let definition = override
@@ -65,13 +65,13 @@ export default class MSMServer {
       definition = convertJsonToHandler(definition)
     }
 
-    this.overrides[composeModulePath(req, this.config)] = {
+    this.overrides[composeModulePath(req, this.config, preserveQuery)] = {
       definition,
       once: true,
     }
   }
 
-  on(method: string, calledUrl: string, override: IDefinition) {
+  on(method: string, calledUrl: string, override: IDefinition, preserveQuery = false) {
     const req = { url: calledUrl, method }
 
     let definition = override
@@ -84,16 +84,16 @@ export default class MSMServer {
       definition = convertJsonToHandler(definition)
     }
 
-    this.overrides[composeModulePath(req, this.config)] = {
+    this.overrides[composeModulePath(req, this.config, preserveQuery)] = {
       definition,
       once: false,
     }
   }
 
-  off(method?: string, calledUrl?: string) {
+  off(method?: string, calledUrl?: string, preserveQuery = false) {
     if (method != null && calledUrl != null) {
       const req = { url: calledUrl, method }
-      delete this.overrides[composeModulePath(req, this.config)]
+      delete this.overrides[composeModulePath(req, this.config, preserveQuery)]
       return
     }
 

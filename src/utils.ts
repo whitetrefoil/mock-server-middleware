@@ -35,11 +35,12 @@ export async function delay(ms: number) {
 export function composeModulePath(
   { url, method }: Required<IRule>,
   config: IParsedServerConfig,
+  preserveQuery: boolean = false,
 ): string {
   let modulePath = url
 
   modulePath = modulePath.split('#')[0]
-  if (config.preserveQuery !== true) { modulePath = modulePath.split('?')[0] }
+  if (preserveQuery !== true) { modulePath = modulePath.split('?')[0] }
   if (config.lowerCase) { modulePath = modulePath.toLowerCase() }
   modulePath = modulePath.replace(/[^a-zA-Z0-9/]/g, config.nonChar)
 
@@ -122,6 +123,10 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
   }
 }
 
+export function load404Module(): Middleware {
+  return convertJsonToHandler({ code: HTTP_NOT_FOUND, body: {} })
+}
+
 /**
  * @param modulePath - path to load file, with ".js" suffix or not.
  * @param logger
@@ -166,7 +171,7 @@ export function loadModuleFromOverrides(
   return handler
 }
 
-export function loadModule(modulePath: string, overrides: IOverrideStore, logger: Logger): Middleware {
+export function loadModule(modulePath: string, overrides: IOverrideStore, logger: Logger): Middleware|undefined {
   let handler: Middleware|undefined
 
   handler = loadModuleFromOverrides(modulePath, overrides, logger)
@@ -182,7 +187,6 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
   }
 
   logger.warn(yellow('StubAPI not found: ') + modulePath)
-  return convertJsonToHandler({ code: HTTP_NOT_FOUND, body: {} })
 }
 
 
@@ -205,7 +209,7 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
   const url     = ctx.url
   const headers = ctx.headers
   const body    = ctx.body
-  const fp      = composeModulePath(ctx.request, config)
+  const fp      = composeModulePath(ctx.request, config, true)
   logger.info(`${method} ${url}`)
   logger.debug(`should located at: ${fp}`)
   const existed = loadModuleFromFs(fp, logger)

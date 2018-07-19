@@ -8,7 +8,7 @@ import { parse as parseUrl } from 'url'
 import { IMockServerConfig, IParsedServerConfig, setOptions } from './config'
 import Logger, { LogLevel } from './logger'
 import MSMServer from './server'
-import { composeModulePath, delay, loadModule, saveModule } from './utils'
+import { composeModulePath, delay, load404Module, loadModule, saveModule } from './utils'
 
 // endregion
 
@@ -46,7 +46,6 @@ export default class MSM implements IParsedServerConfig {
   readonly overwriteMode: boolean = false
   readonly saveHeaders: string[]  = []
   readonly ping: number           = 0
-  readonly preserveQuery: boolean = false
   readonly logger: Logger
   readonly server: MSMServer
 
@@ -62,10 +61,11 @@ export default class MSM implements IParsedServerConfig {
     this.logger.log(`apiPrefixes: ${this.apiPrefixes}`)
     this.logger.log(`apiDir: ${this.apiDir}`)
     this.logger.log(`nonChar: ${this.nonChar}`)
-    this.logger.log(`lowerCase: ${this.lowerCase}`)
-    this.logger.log(`ping: ${this.ping}`)
-    this.logger.log(`preserveQuery: ${this.preserveQuery}`)
     this.logger.log(`logLevel: ${this.logLevel}`)
+    this.logger.log(`lowerCase: ${this.lowerCase}`)
+    this.logger.log(`overwriteMode: ${this.overwriteMode}`)
+    this.logger.log(`saveHeaders: ${this.saveHeaders}`)
+    this.logger.log(`ping: ${this.ping}`)
 
     return async(ctx, next) => {
 
@@ -86,8 +86,9 @@ export default class MSM implements IParsedServerConfig {
         ctx.request.body != null ? ctx.body : void 0,
       )
 
-      const modulePath = composeModulePath(ctx.request, this)
-      const handler    = loadModule(modulePath, this.server.overrides, this.logger)
+      const handler = loadModule(composeModulePath(ctx.request, this, true), this.server.overrides, this.logger)
+                      || loadModule(composeModulePath(ctx.request, this), this.server.overrides, this.logger)
+                      || load404Module()
 
       await delay(this.ping)
 
@@ -102,7 +103,6 @@ export default class MSM implements IParsedServerConfig {
     this.logger.log(`nonChar: ${this.nonChar}`)
     this.logger.log(`lowerCase: ${this.lowerCase}`)
     this.logger.log(`overwriteMode: ${this.overwriteMode}`)
-    this.logger.log(`preserveQuery: ${this.preserveQuery}`)
     this.logger.log(`logLevel: ${this.logLevel}`)
 
     return async(ctx, next) => {

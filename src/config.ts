@@ -34,9 +34,6 @@ export interface IMockServerConfig {
 
   /** Delay before response, in ms. */
   ping?: number
-
-  /** Do not strip query in URL (instead replace '?' with nonChar). */
-  preserveQuery?: boolean
 }
 
 export type IParsedServerConfig = Required<IMockServerConfig>
@@ -69,9 +66,6 @@ export function setOptions<APP extends IMockServerConfig>(
     }
     if (_.isFinite(options.ping)) {
       _this.ping = options.ping as number
-    }
-    if (options.preserveQuery === true) {
-      _this.preserveQuery = options.preserveQuery
     }
   }
 }
