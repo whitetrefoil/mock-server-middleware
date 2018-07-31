@@ -44,6 +44,7 @@
   "dependencies": {
     "clear-require": "^2.0.0",
     "chalk": "^2.4.1",
+    "koa-bodyparser": "^4.2.1",
     "lodash": "^4.17.10",
     "strip-json-comments": "^2.0.1"
   },
@@ -64,7 +65,6 @@
     "connect": "^3.6.6",
     "cross-env": "^5.2.0",
     "koa": "^2.5.2",
-    "koa-bodyparser": "^4.2.1",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
     "rimraf": "^2.6.2",
