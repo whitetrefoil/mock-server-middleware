@@ -1,6 +1,6 @@
 {
   "name": "mock-server-middleware",
-  "version": "0.6.0-alpha.3",
+  "version": "0.6.0",
   "description": "A connect middleware of mock server to help develop web app.",
   "main": "lib/common/main.js",
   "module": "lib/esm/main.js",
