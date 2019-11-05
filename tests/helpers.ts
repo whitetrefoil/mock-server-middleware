@@ -1,5 +1,5 @@
-import { Context } from 'koa'
-import { SinonStatic } from 'sinon'
+import { Context }     from 'koa';
+import { SinonStatic } from 'sinon';
 
 export function mockCtx(sinon: SinonStatic, request: any = { method: 'GET', url: '/' }) {
   return {
@@ -7,9 +7,9 @@ export function mockCtx(sinon: SinonStatic, request: any = { method: 'GET', url:
     set   : sinon.fake(),
     status: null,
     body  : null,
-  } as any as Context
+  } as any as Context;
 }
 
 export function mockNext() {
-  return () => Promise.resolve()
+  return () => Promise.resolve();
 }

@@ -1,4 +1,6 @@
-import chalk, { Chalk } from 'chalk'
+// tslint:disable:no-console
+
+import chalk, { Chalk } from 'chalk';
 
 /**
  * @param printFn - A function to print the log, usually `console.log` or `console.error`.
@@ -11,8 +13,8 @@ const print = (
   chalkFn: Chalk,
   message: string,
 ) => {
-  printFn(`${chalkFn('MDM')}@${new Date().toTimeString().substr(0, 8)} - ${message}`)
-}
+  printFn(`${chalkFn('MDM')}@${new Date().toTimeString().substr(0, 8)} - ${message}`);
+};
 
 export enum LogLevel {
   DEBUG = 1,
@@ -24,38 +26,38 @@ export enum LogLevel {
 }
 
 class Logger {
-  readonly logLevel: LogLevel
+  readonly logLevel: LogLevel;
 
   constructor(level: LogLevel) {
-    this.logLevel = level in LogLevel ? level : LogLevel.NONE
+    this.logLevel = level in LogLevel ? level : LogLevel.NONE;
   }
 
   debug(message: string) {
-    if (this.logLevel > LogLevel.DEBUG) { return }
+    if (this.logLevel > LogLevel.DEBUG) { return; }
     if (process.env.NODE_ENV === 'development') {
-      print(console.log, chalk.magenta, message)
+      print(console.log, chalk.magenta, message);
     }
   }
 
   info(message: string) {
-    if (this.logLevel > LogLevel.INFO) { return }
-    print(console.log, chalk.cyan, message)
+    if (this.logLevel > LogLevel.INFO) { return; }
+    print(console.log, chalk.cyan, message);
   }
 
   log(message: string) {
-    if (this.logLevel > LogLevel.LOG) { return }
-    print(console.log, chalk.green, message)
+    if (this.logLevel > LogLevel.LOG) { return; }
+    print(console.log, chalk.green, message);
   }
 
   warn(message: string) {
-    if (this.logLevel > LogLevel.WARN) { return }
-    print(console.log, chalk.yellow, message)
+    if (this.logLevel > LogLevel.WARN) { return; }
+    print(console.log, chalk.yellow, message);
   }
 
   error(message: string) {
-    if (this.logLevel > LogLevel.ERROR) { return }
-    print(console.log, chalk.red, message)
+    if (this.logLevel > LogLevel.ERROR) { return; }
+    print(console.log, chalk.red, message);
   }
 }
 
-export default Logger
+export default Logger;
