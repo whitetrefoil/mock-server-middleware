@@ -1,6 +1,6 @@
 {
-  "name": "mock-server-middleware",
-  "version": "0.6.0",
+  "name": "@whitetrefoil/msm",
+  "version": "0.7.0",
   "description": "A connect middleware of mock server to help develop web app.",
   "main": "lib/common/main.js",
   "module": "lib/esm/main.js",
