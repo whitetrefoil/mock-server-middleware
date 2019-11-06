@@ -1,4 +1,4 @@
-mock-server-middleware
+`@whitetrefoil/msm` (previously `mock-server-middleware`)
 ======================
 
 **WARNING: THIS APPLICATION IS STILL DEVELOPING!!!**
@@ -25,7 +25,7 @@ How To Use (Simplest Example)
 Gulpfile.js:
 ```typescript
 import gulp from 'gulp'
-import { bodyParser, Koa, LogLevel, MSM } from 'mock-server-middleware'
+import { bodyParser, Koa, LogLevel, MSM } from '@whitetrefoil/msm'
 
 gulp.task('backend', (done) => {
   const app = new Koa()
@@ -244,7 +244,7 @@ export interface ICallLog {
 
 ### API Definitions
 
-mock-server-middleware has ability to handle 2 kind of API definitions:
+`@whitetrefoil/msm` has ability to handle 2 kind of API definitions:
 
 * JS (connect middleware function)
 * JSON
@@ -258,6 +258,10 @@ This is the spec of the API definition files in JSON.
 
 Changelog
 ---------
+
+### v0.8.1
+
+* Update README.
 
 ### v0.8.0
 
