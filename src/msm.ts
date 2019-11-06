@@ -5,7 +5,6 @@ import { NextHandleFunction }                                              from 
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse }            from 'http';
 // tslint:disable-next-line:no-implicit-dependencies
 import { Middleware }                                                      from 'koa';
-import * as _                                                              from 'lodash';
 import { parse as parseUrl }                                               from 'url';
 import { IMockServerConfig, IParsedServerConfig, setOptions }              from './config';
 import Logger, { LogLevel }                                                from './logger';
@@ -73,9 +72,7 @@ export default class MSM implements IParsedServerConfig {
 
       const { method, url } = ctx.request;
 
-      if (_.every(this.apiPrefixes, prefix =>
-        url.indexOf(prefix) !== 0,
-      )) {
+      if (this.apiPrefixes.every(prefix => !url.startsWith(prefix))) {
         this.logger.debug(`NOT HIT: ${method} ${url}`);
         return;
       }
@@ -115,9 +112,7 @@ export default class MSM implements IParsedServerConfig {
 
       await next();
 
-      if (_.every(this.apiPrefixes, prefix =>
-        url.indexOf(prefix) !== 0,
-      )) {
+      if (this.apiPrefixes.every(prefix => !url.startsWith(prefix))) {
         this.logger.debug(`NOT HIT: ${method} ${url}`);
         return;
       }

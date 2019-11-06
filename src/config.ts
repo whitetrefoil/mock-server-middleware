@@ -1,4 +1,3 @@
-import * as _       from 'lodash';
 import { LogLevel } from './logger';
 
 export interface IMockServerConfig {
@@ -64,7 +63,7 @@ export function setOptions<APP extends IMockServerConfig>(
     if (options.saveHeaders != null && options.saveHeaders.length != null) {
       _this.saveHeaders = options.saveHeaders;
     }
-    if (_.isFinite(options.ping)) {
+    if (Number.isFinite(options.ping as number)) {
       _this.ping = options.ping as number;
     }
   }

@@ -1,6 +1,5 @@
 // tslint:disable-next-line:no-implicit-dependencies
 import { Middleware }                                                   from 'koa';
-import * as _                                                           from 'lodash';
 import qs, { ParsedUrlQuery }                                           from 'querystring';
 import stripJsonComments                                                from 'strip-json-comments';
 import * as url                                                         from 'url';
@@ -120,8 +119,8 @@ export default class MSMServer {
    * @param method - Filter by request method.
    */
   called(pathname?: string|RegExp, method?: string): ICallLog[] {
-    return _.filter(this.callLogs, log => {
-      if (_.isString(method) && method.toLowerCase() !== log.method) {
+    return this.callLogs.filter(log => {
+      if (typeof method === 'string' && method.toLowerCase() !== log.method) {
         return false;
       }
       if (pathname != null && log.pathname.search(pathname) !== 0) {

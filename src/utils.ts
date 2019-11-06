@@ -3,7 +3,6 @@ import clearRequire            from 'clear-module';
 import * as fs                 from 'fs-extra';
 // tslint:disable-next-line:no-implicit-dependencies
 import { Context, Middleware } from 'koa';
-import * as _                  from 'lodash';
 import * as path               from 'path';
 import stripJsonComments       from 'strip-json-comments';
 import { IParsedServerConfig } from './config';
@@ -66,11 +65,12 @@ export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
     await next();
     ctx.status = json.code || 200;
     ctx.set('Content-Type', 'application/json');
-    _.forEach(json.headers, (val, name) => {
+    Object.keys(json.headers ?? {}).forEach(key => {
+      const val = json.headers?.[key];
       if (val != null) {
-        ctx.set(name, val);
+        ctx.set(key, val);
       } else {
-        ctx.remove(name);
+        ctx.remove(key);
       }
     });
     ctx.body = json.body;
@@ -118,8 +118,10 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
   try {
     clearRequire(formattedPath);
     const loadedFile = require(formattedPath);
-    if (_.isFunction(loadedFile)) { return loadedFile; }
-    if (!_.isNull(loadedFile) && _.isFunction(loadedFile.default)) { return loadedFile.default; }
+    if (typeof loadedFile === 'function') { return loadedFile; }
+    if (loadedFile?.default === 'function') {
+      return loadedFile.default;
+    }
     logger.warn(`Failed to recognize commonjs export or es default export from module ${formattedPath}`);
   } catch (e) {
     logger.warn(`Failed to require module ${formattedPath}`);
@@ -164,7 +166,7 @@ export function loadModuleFromOverrides(
     return;
   }
 
-  if (!_.isFunction(loaded.definition)) {
+  if (typeof loaded.definition !== 'function') {
     logger.warn(`Overrides for ${modulePath} is corrupted, deleting...`);
     // tslint:disable-next-line:no-dynamic-delete
     delete overrides[modulePath];
