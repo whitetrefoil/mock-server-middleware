@@ -259,6 +259,12 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.8.0
+
+* Now gzipped/deflated responses can be recorded correctly.
+* Fix `ENOENT` error in recorder mode.
+* Upgrade many dependencies.
+
 ### v0.6.0
 
 * Put "koa-bodyparser" in "dependencies" instead of "devDependencies".
