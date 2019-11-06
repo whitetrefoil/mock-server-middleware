@@ -73,7 +73,7 @@ export default class MSM implements IParsedServerConfig {
 
       const { method, url } = ctx.request;
 
-      if (_.every(this.apiPrefixes, (prefix) =>
+      if (_.every(this.apiPrefixes, prefix =>
         url.indexOf(prefix) !== 0,
       )) {
         this.logger.debug(`NOT HIT: ${method} ${url}`);
@@ -95,6 +95,8 @@ export default class MSM implements IParsedServerConfig {
       await delay(this.ping);
 
       await handler(ctx, next);
+
+      ctx.set('x-mock-server-middleware', 'stubapi');
     };
   }
 
@@ -113,13 +115,14 @@ export default class MSM implements IParsedServerConfig {
 
       await next();
 
-      if (_.every(this.apiPrefixes, (prefix) =>
+      if (_.every(this.apiPrefixes, prefix =>
         url.indexOf(prefix) !== 0,
       )) {
         this.logger.debug(`NOT HIT: ${method} ${url}`);
         return;
       }
 
+      ctx.set('x-mock-server-middleware', 'recorder');
       await saveModule(ctx, this, this.logger);
     };
   }

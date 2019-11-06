@@ -1,15 +1,17 @@
 import chalk                   from 'chalk';
 import clearRequire            from 'clear-module';
-import * as fs                 from 'fs';
+import * as fs                 from 'fs-extra';
 // tslint:disable-next-line:no-implicit-dependencies
 import { Context, Middleware } from 'koa';
 import * as _                  from 'lodash';
 import * as path               from 'path';
 import stripJsonComments       from 'strip-json-comments';
 import { IParsedServerConfig } from './config';
+import { decompress }          from './decompression';
 import Logger                  from './logger';
 import { IJsonApiDefinition }  from './msm';
 import { IOverrideStore }      from './server';
+// import bodyParser         from 'koa-bodyparser';
 
 
 // region - Constants
@@ -197,16 +199,22 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
 }
 
 
-function parseBody(ctx: Context): string {
-  const body = ctx.body;
+async function parseBody(ctx: Context, logger: Logger): Promise<any> {
+  // const body = ctx.body;
   const rawType = ctx.response.get('Content-Type');
   const match = rawType.match(/^\w*\/\w*/);
   const type = match == null ? null : match[0];
-  if (type === 'application/json') {
-    return JSON.parse(body);
+
+  const body = await decompress(ctx.body, ctx.response.headers, logger);
+  if (!Buffer.isBuffer(body)) {
+    return body.toString();
   }
 
-  const base64 = Buffer.from(body).toString('base64');
+  if (type === 'application/json') {
+    return JSON.parse(body.toString());
+  }
+
+  const base64 = body.toString('base64');
   return `data:${type};base64,${base64}`;
 }
 
@@ -215,7 +223,6 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
   const method = ctx.method;
   const url = ctx.url;
   const headers = ctx.headers;
-  const body = ctx.body;
   const fp = composeModulePath(ctx.request, config, true);
   logger.info(`${method} ${url}`);
   logger.debug(`should located at: ${fp}`);
@@ -238,10 +245,10 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
 
   logger.info(`Method: ${method}`);
   logger.info(`URL: ${url}`);
-  logger.info(`Headers: ${headers}`);
+  logger.debug(`Headers: ${headers}`);
   // logger.info(`Body: ${body}`)
 
-  const parsedBody = parseBody(ctx);
+  const parsedBody = await parseBody(ctx, logger);
 
   const jsonToWrite: IJsonApiDefinition = {
     code,
@@ -256,6 +263,7 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
     }
   }
 
+  await fs.ensureFile(`${fp}.json`);
   fs.writeFile(`${fp}.json`, JSON.stringify(jsonToWrite, null, 2), 'utf8', err => {
     if (err != null) {
       logger.error(`Failed to save definition file: ${fp}.json`);
