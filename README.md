@@ -259,6 +259,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.8.2
+
+* Fix cannot import js/ts def w/ default export.
+
 ### v0.8.1
 
 * Update README.
