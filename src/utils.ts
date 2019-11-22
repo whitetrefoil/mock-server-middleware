@@ -119,7 +119,7 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
     clearRequire(formattedPath);
     const loadedFile = require(formattedPath);
     if (typeof loadedFile === 'function') { return loadedFile; }
-    if (loadedFile?.default === 'function') {
+    if (typeof loadedFile?.default === 'function') {
       return loadedFile.default;
     }
     logger.warn(`Failed to recognize commonjs export or es default export from module ${formattedPath}`);
