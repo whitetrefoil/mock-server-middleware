@@ -259,6 +259,11 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.9.0
+
+* Move "koa" from "devDep" to "dep".
+* Upgrade dependencies.
+
 ### v0.8.2
 
 * Fix cannot import js/ts def w/ default export.
