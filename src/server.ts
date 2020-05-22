@@ -93,15 +93,16 @@ export default class MSMServer {
   off(method?: string, calledUrl?: string, preserveQuery = false) {
     if (method != null && calledUrl != null) {
       const req = { url: calledUrl, method };
-      // tslint:disable-next-line:no-dynamic-delete
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete this.overrides[composeModulePath(req, this.config, preserveQuery)];
       return;
     }
 
     if (method == null && calledUrl == null) {
       for (const key in this.overrides) {
+        // eslint-disable-next-line no-prototype-builtins
         if (this.overrides.hasOwnProperty(key)) {
-          // tslint:disable-next-line:no-dynamic-delete
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete this.overrides[key];
         }
       }

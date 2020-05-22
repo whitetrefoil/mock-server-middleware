@@ -1,0 +1,10 @@
+.building/
+.sass-cache/
+.server/
+dist/
+doc/
+node_modules/
+stubapi/
+test_results/
+~playground/
+jssdkApi/

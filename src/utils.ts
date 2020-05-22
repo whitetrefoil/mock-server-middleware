@@ -57,7 +57,7 @@ export function composeModulePath(
 }
 
 export function isJsonApiDefinition(obj: object): obj is IJsonApiDefinition {
-  return obj != null && obj.hasOwnProperty('body');
+  return obj?.hasOwnProperty('body');
 }
 
 export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
@@ -93,7 +93,7 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): Middleware|
     loadedFile = fs.readFileSync(formattedPath, 'utf8');
   } catch (e) {
     logger.warn(`Failed to load file ${formattedPath}`);
-    return;
+    return undefined;
   }
 
   try {
@@ -102,6 +102,7 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): Middleware|
   } catch (e) {
     logger.warn(`Failed to parse file ${formattedPath}`);
   }
+  return undefined;
 }
 
 /**
@@ -117,6 +118,7 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
 
   try {
     clearRequire(formattedPath);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const loadedFile = require(formattedPath);
     if (typeof loadedFile === 'function') { return loadedFile; }
     if (typeof loadedFile?.default === 'function') {
@@ -126,6 +128,7 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
   } catch (e) {
     logger.warn(`Failed to require module ${formattedPath}`);
   }
+  return undefined;
 }
 
 export function load404Module(): Middleware {
@@ -160,7 +163,6 @@ export function loadModuleFromOverrides(
   logger: Logger,
 ): Middleware|undefined {
   const loaded = overrides[modulePath];
-  let handler: Middleware;
 
   if (loaded == null) {
     return;
@@ -168,14 +170,14 @@ export function loadModuleFromOverrides(
 
   if (typeof loaded.definition !== 'function') {
     logger.warn(`Overrides for ${modulePath} is corrupted, deleting...`);
-    // tslint:disable-next-line:no-dynamic-delete
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete overrides[modulePath];
     return;
   }
 
-  handler = loaded.definition;
+  const handler = loaded.definition;
   if (loaded.once) {
-    // tslint:disable-next-line:no-dynamic-delete
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete overrides[modulePath];
   }
 
@@ -198,6 +200,7 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
   }
 
   logger.warn(yellow('StubAPI not found: ') + modulePath);
+  return undefined;
 }
 
 
@@ -222,9 +225,9 @@ async function parseBody(ctx: Context, logger: Logger): Promise<any> {
 
 
 export async function saveModule(ctx: Context, config: IParsedServerConfig, logger: Logger) {
-  const method = ctx.method;
-  const url = ctx.url;
-  const headers = ctx.headers;
+  const { method } = ctx;
+  const { url } = ctx;
+  const { headers } = ctx;
   const fp = composeModulePath(ctx.request, config, true);
   logger.info(`${method} ${url}`);
   logger.debug(`should located at: ${fp}`);
@@ -239,7 +242,7 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
 
   const code = ctx.status;
   if (code === 404) {
-    logger.warn(`Response status 404, skipping...`);
+    logger.warn('Response status 404, skipping...');
     return;
   }
 

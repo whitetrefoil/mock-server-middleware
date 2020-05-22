@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console,@typescript-eslint/no-magic-numbers */
 
 import chalk, { Chalk } from 'chalk';
 
@@ -13,16 +13,20 @@ const print = (
   chalkFn: Chalk,
   message: string,
 ) => {
-  printFn(`${chalkFn('MDM')}@${new Date().toTimeString().substr(0, 8)} - ${message}`);
+  printFn(`${chalkFn('MDM')}@${
+    new Date()
+      .toTimeString()
+      .substr(0, 8)
+  } - ${message}`);
 };
 
 export enum LogLevel {
   DEBUG = 1,
-  INFO  = 2,
-  LOG   = INFO,
-  WARN  = 3,
+  INFO = 2,
+  LOG = INFO,
+  WARN = 3,
   ERROR = 4,
-  NONE  = 10,
+  NONE = 10,
 }
 
 class Logger {
@@ -33,29 +37,39 @@ class Logger {
   }
 
   debug(message: string) {
-    if (this.logLevel > LogLevel.DEBUG) { return; }
+    if (this.logLevel > LogLevel.DEBUG) {
+      return;
+    }
     if (process.env.NODE_ENV === 'development') {
       print(console.log, chalk.magenta, message);
     }
   }
 
   info(message: string) {
-    if (this.logLevel > LogLevel.INFO) { return; }
+    if (this.logLevel > LogLevel.INFO) {
+      return;
+    }
     print(console.log, chalk.cyan, message);
   }
 
   log(message: string) {
-    if (this.logLevel > LogLevel.LOG) { return; }
+    if (this.logLevel > LogLevel.LOG) {
+      return;
+    }
     print(console.log, chalk.green, message);
   }
 
   warn(message: string) {
-    if (this.logLevel > LogLevel.WARN) { return; }
+    if (this.logLevel > LogLevel.WARN) {
+      return;
+    }
     print(console.log, chalk.yellow, message);
   }
 
   error(message: string) {
-    if (this.logLevel > LogLevel.ERROR) { return; }
+    if (this.logLevel > LogLevel.ERROR) {
+      return;
+    }
     print(console.log, chalk.red, message);
   }
 }

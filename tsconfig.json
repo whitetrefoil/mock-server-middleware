@@ -1,25 +1,35 @@
 {
+  "compileOnSave"  : false,
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration"                 : true,
-    "declarationDir"              : "lib/types",
-    "esModuleInterop"             : true,
-    "experimentalDecorators"      : true,
-    "inlineSourceMap"             : false,
-    "inlineSources"               : true,
-    "lib"                         : ["es2017", "dom"],
-    "module"                      : "esnext",
-    "moduleResolution"            : "node",
-    "noImplicitAny"               : true,
-    "outDir"                      : "lib/esm",
-    "removeComments"              : false,
-    "skipLibCheck"                : true,
-    "sourceMap"                   : true,
-    "strict"                      : true,
-    "target"                      : "es2017"
+    "allowJs"                       : false,
+    "allowSyntheticDefaultImports"  : true,
+    "baseUrl"                       : ".",
+    "declaration"                   : true,
+    "declarationDir"                : "lib/types",
+    "emitDecoratorMetadata"         : true,
+    "esModuleInterop"               : true,
+    "experimentalDecorators"        : true,
+    "inlineSourceMap"               : false,
+    "inlineSources"                 : false,
+    "lib"                           : ["esnext", "dom", "dom.iterable"],
+    "module"                        : "esnext",
+    "moduleResolution"              : "node",
+    "noImplicitAny"                 : true,
+    "noImplicitReturns"             : true,
+    "outDir"                        : "lib/esm",
+    "paths"                         : {
+      "~/*": ["./src/*"]
+    },
+    "removeComments"                : false,
+    "skipDefaultLibCheck"           : true,
+    "skipLibCheck"                  : true,
+    "sourceMap"                     : true,
+    "strict"                        : true,
+    "suppressImplicitAnyIndexErrors": true,
+    "target"                        : "es2018"
   },
   "include"        : [
-    "declarations/*.d.ts",
+    "declarations/**/*.d.ts",
     "src/**/*.ts"
   ]
 }

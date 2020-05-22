@@ -1,10 +1,9 @@
 import { IncomingHttpHeaders }           from 'http';
 import * as zlib                         from 'zlib';
-import { CompressCallback, ZlibOptions } from 'zlib';
 import Logger                            from './logger';
 
 
-type Algorithm = (buf: Buffer, options: ZlibOptions, callback: CompressCallback) => void;
+type Algorithm = (buf: Buffer, options: zlib.ZlibOptions, callback: zlib.CompressCallback) => void;
 
 const algorithmMap: Record<string, Algorithm> = {
   gzip   : zlib.gunzip,
@@ -49,6 +48,7 @@ export async function decompress(
 
     let decompressed = Buffer.isBuffer(body) ? body : Buffer.from(body);
     for (const alg of algorithms) {
+      // eslint-disable-next-line no-await-in-loop,no-loop-func
       decompressed = await new Promise((resolve, reject) => {
         alg(decompressed, {}, (err, res) => {
           if (err != null) {
