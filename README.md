@@ -259,6 +259,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.10.0
+
+* Clear the whole `process.cwd()` instead of the exact file when requiring JS def file.
+
 ### v0.9.0
 
 * Move "koa" from "devDep" to "dep".
