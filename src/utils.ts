@@ -41,9 +41,13 @@ export function composeModulePath(
 ): string {
   let modulePath = url;
 
-  modulePath = modulePath.split('#')[0];
-  if (preserveQuery !== true) { modulePath = modulePath.split('?')[0]; }
-  if (config.lowerCase) { modulePath = modulePath.toLowerCase(); }
+  [modulePath] = modulePath.split('#');
+  if (preserveQuery !== true) {
+    [modulePath] = modulePath.split('?');
+  }
+  if (config.lowerCase) {
+    modulePath = modulePath.toLowerCase();
+  }
   modulePath = modulePath.replace(/[^a-zA-Z0-9/]/g, config.nonChar);
 
   const fullModulePath = path.join(
@@ -56,6 +60,7 @@ export function composeModulePath(
   return fullModulePath;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function isJsonApiDefinition(obj: object): obj is IJsonApiDefinition {
   return obj?.hasOwnProperty('body');
 }
@@ -117,8 +122,9 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
   const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`;
 
   try {
-    clearRequire(formattedPath);
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const regexp = new RegExp(`^${process.cwd()}`);
+    clearRequire.match(regexp);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports,global-require
     const loadedFile = require(formattedPath);
     if (typeof loadedFile === 'function') { return loadedFile; }
     if (typeof loadedFile?.default === 'function') {
