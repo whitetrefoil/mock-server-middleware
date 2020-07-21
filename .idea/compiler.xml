@@ -7,6 +7,7 @@
     <option name="enableServiceForProjectsWithoutConfig" value="false" />
     <option name="generateSourceMap" value="false" />
     <option name="outDirectory" />
+    <option name="recompileOnChanges" value="true" />
     <option name="scopeName" value="Current File" />
     <option name="showAllErrors" value="true" />
     <option name="typeScriptCompilerParams" value="--sourceMap true" />
