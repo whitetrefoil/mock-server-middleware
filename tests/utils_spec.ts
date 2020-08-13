@@ -1,13 +1,13 @@
-import chai, { expect }             from 'chai';
-import chaiAsPromised               from 'chai-as-promised';
-import { IncomingMessage }          from 'http';
-import path                         from 'path';
-import sinon                        from 'sinon';
-import sinonChai                    from 'sinon-chai';
-import { IParsedServerConfig }      from '../src/config';
-import { LogLevel }                 from '../src/logger';
-import { composeModulePath, delay } from '../src/utils';
-import { mockCtx, mockNext }        from './helpers';
+import chai, { expect }                                   from 'chai';
+import chaiAsPromised                                     from 'chai-as-promised';
+import { IncomingMessage }                                from 'http';
+import path                                               from 'path';
+import sinon                                              from 'sinon';
+import sinonChai                                          from 'sinon-chai';
+import { IParsedServerConfig }                            from '../src/config';
+import { LogLevel }                                       from '../src/logger';
+import { composeModulePath, convertJsonToHandler, delay } from '../src/utils';
+import { mockCtx, mockNext }                              from './helpers';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -109,8 +109,6 @@ describe('Utilities', () => {
 
   describe('.convertJsonToHandler()', () => {
     it('should basically works', async() => {
-      const { convertJsonToHandler } = require('../src/utils');
-
       const jsonDef = {
         code   : 201,
         headers: {

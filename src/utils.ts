@@ -1,6 +1,7 @@
 import chalk                   from 'chalk';
 import clearRequire            from 'clear-module';
 import * as fs                 from 'fs-extra';
+import JSON5                   from 'json5';
 // tslint:disable-next-line:no-implicit-dependencies
 import { Context, Middleware } from 'koa';
 import * as path               from 'path';
@@ -102,7 +103,7 @@ export function readJsonDefFromFs(filePath: string, logger: Logger): Middleware|
   }
 
   try {
-    const parsedFile = JSON.parse(stripJsonComments(loadedFile)) as IJsonApiDefinition;
+    const parsedFile = JSON5.parse(stripJsonComments(loadedFile)) as IJsonApiDefinition;
     return convertJsonToHandler(parsedFile);
   } catch (e) {
     logger.warn(`Failed to parse file ${formattedPath}`);
@@ -153,7 +154,7 @@ export function loadModuleFromFs(modulePath: string, logger: Logger): Middleware
 
   const extname = path.extname(modulePath);
 
-  if (extname === '.json' || extname === '') {
+  if (extname === '.json' || extname === '.json5' || extname === '') {
     handler = readJsonDefFromFs(modulePath, logger);
   }
   if (handler != null) {

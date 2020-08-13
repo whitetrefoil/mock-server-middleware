@@ -1,11 +1,20 @@
-// The original ESLint part has been updated to ESLint v6.8.0
+/* eslint no-magic-numbers: [1, { "ignore": [0, 1, 2] }] */
+
+// The original ESLint part has been updated to ESLint v7.6.0
 
 module.exports = {
 
   root: true,
 
+  settings: {
+    // react: {
+    //   version: 'detect'
+    // }
+  },
+
   parserOptions: {
     sourceType  : 'module',
+    ecmaVersion : 2020,
     ecmaFeatures: {
       legacyDecorators: true,
     },
@@ -23,10 +32,25 @@ module.exports = {
   rules: {
     // Possible Errors
     // ---------------
-    'no-await-in-loop'           : [2],
-    'no-console'                 : [2],
-    'no-dupe-else-if'            : [2],
-    'no-extra-parens'            : [
+    'for-direction'                : [2],
+    'getter-return'                : [2],
+    'no-async-promise-executor'    : [2],
+    'no-await-in-loop'             : [2],
+    'no-compare-neg-zero'          : [2],
+    'no-cond-assign'               : [2],
+    'no-console'                   : [2],
+    'no-constant-condition'        : [2],
+    'no-control-regex'             : [2],
+    'no-debugger'                  : [2],
+    'no-dupe-args'                 : [2],
+    'no-dupe-else-if'              : [2],
+    'no-dupe-keys'                 : [2],
+    'no-duplicate-case'            : [2],
+    'no-empty'                     : [2],
+    'no-empty-character-class'     : [2],
+    'no-ex-assign'                 : [2],
+    'no-extra-boolean-cast'        : [2],
+    'no-extra-parens'              : [
       1,
       'all',
       {
@@ -36,10 +60,30 @@ module.exports = {
         enforceForArrowConditionals     : false,
       },
     ],
-    'no-import-assign'           : [2],
-    'no-setter-return'           : [2],
-    'no-template-curly-in-string': [2],
-    'require-atomic-updates'     : [2],
+    'no-extra-semi'                : [2],
+    'no-func-assign'               : [2],
+    'no-import-assign'             : [2],
+    'no-inner-declarations'        : [2],
+    'no-invalid-regexp'            : [2],
+    'no-irregular-whitespace'      : [2],
+    'no-loss-of-precision'         : [2],
+    'no-misleading-character-class': [2],
+    'no-obj-calls'                 : [2],
+    'no-promise-executor-return'   : [2],
+    'no-prototype-builtins'        : [2],
+    'no-regex-spaces'              : [2],
+    'no-setter-return'             : [2],
+    'no-sparse-arrays'             : [2],
+    'no-template-curly-in-string'  : [2],
+    'no-unexpected-multiline'      : [2],
+    'no-unreachable'               : [2],
+    'no-unreachable-loop'          : [2],
+    'no-unsafe-finally'            : [2],
+    'no-unsafe-negation'           : [2],
+    'no-useless-backreference'     : [2],
+    'require-atomic-updates'       : [2],
+    'use-isnan'                    : [2],
+    'valid-typeof'                 : [2],
 
     // Best Practices
     // --------------
@@ -51,6 +95,7 @@ module.exports = {
     'consistent-return'           : [1],
     'curly'                       : [2],
     'default-case'                : [2],
+    'default-case-last'           : [2],
     'default-param-last'          : [2],
     'dot-location'                : [2, 'property'],
     // Considering the consistency when acquiring object from API.
@@ -58,8 +103,10 @@ module.exports = {
     'eqeqeq'                      : [2, 'always', { null: 'ignore' }],
     'grouped-accessor-pairs'      : [1, 'getBeforeSet'],
     'guard-for-in'                : [2],
+    'max-classes-per-file'        : [0],
     'no-alert'                    : [2],
     'no-caller'                   : [2],
+    'no-case-declarations'        : [2],
     'no-constructor-return'       : [2],
     'no-div-regex'                : [1],
     'no-else-return'              : [1],
@@ -73,19 +120,21 @@ module.exports = {
     'no-extend-native'            : [2],
     'no-extra-bind'               : [2],
     'no-extra-label'              : [2],
+    'no-fallthrough'              : [2],
     'no-floating-decimal'         : [2],
+    'no-global-assign'            : [2],
     'no-implicit-coercion'        : [1],
     'no-implicit-globals'         : [2],
     'no-implied-eval'             : [2],
-    // Disable this because of AngularJS's `controllerAs`.
-    'no-invalid-this'             : [0],
+    'no-invalid-this'             : [2],
     'no-iterator'                 : [2],
     'no-labels'                   : [2],
     'no-lone-blocks'              : [2],
     'no-loop-func'                : [2],
     'no-magic-numbers'            : [
-      1,
+      0,
       {
+        // eslint-disable-next-line no-magic-numbers
         ignore            : [-1, 0, 1, 60],
         ignoreArrayIndexes: true,
         detectObjects     : true,
@@ -96,25 +145,36 @@ module.exports = {
     'no-new'                      : [1],
     'no-new-func'                 : [2],
     'no-new-wrappers'             : [2],
+    'no-octal'                    : [2],
     'no-octal-escape'             : [2],
     'no-param-reassign'           : [1, { props: false }],
     'no-proto'                    : [2],
+    'no-redeclare'                : [2],
     'no-restricted-properties'    : [0],
     'no-return-assign'            : [2, 'always'],
+    'no-return-await'             : [2],
     'no-script-url'               : [1],
+    'no-self-assign'              : [2],
     'no-self-compare'             : [2],
     'no-sequences'                : [2],
     'no-throw-literal'            : [1],
-    'no-unused-expressions'       : [2],
+    'no-unmodified-loop-condition': [2],
+    'no-unused-expressions'       : [2, { allowShortCircuit: true }],
+    'no-unused-labels'            : [2],
     'no-useless-call'             : [2],
+    'no-useless-catch'            : [2],
     'no-useless-concat'           : [2],
+    'no-useless-escape'           : [2],
     'no-useless-return'           : [1],
     'no-void'                     : [0],
     'no-warning-comments'         : [1, { location: 'anywhere' }],
+    'no-with'                     : [2],
     'prefer-named-capture-group'  : [2],
     'prefer-promise-reject-errors': [2, { allowEmptyReject: true }],
     'prefer-regex-literals'       : [2],
     'radix'                       : [2],
+    'require-await'               : [2],
+    'require-unicode-regexp'      : [2],
     'vars-on-top'                 : [0],
     'wrap-iife'                   : [2],
     'yoda'                        : [2, 'never', { exceptRange: true }],
@@ -126,28 +186,18 @@ module.exports = {
 
     // Variables
     // ---------
-    'init-declarations'    : [0],
-    'no-label-var'         : [2],
-    'no-restricted-globals': [0],
-    'no-shadow'            : [1],
-    'no-undef-init'        : [2],
-    'no-undefined'         : [0],
+    'init-declarations'         : [0],
+    'no-delete-var'             : [2],
+    'no-label-var'              : [2],
+    'no-restricted-globals'     : [0],
+    'no-shadow'                 : [1],
+    'no-shadow-restricted-names': [2],
+    'no-undef'                  : [2],
+    'no-undef-init'             : [2],
+    'no-undefined'              : [0],
     // Change `args` to `"all"` locally to help cleaning dependency injection.
-    'no-unused-vars'       : [2, { vars: 'all', args: 'none' }],
-    'no-use-before-define' : [2],
-
-    // Node.js and CommonJS
-    // --------------------
-    'global-require'       : [1],
-    'handle-callback-err'  : [1],
-    'no-buffer-constructor': [2],
-    'no-mixed-requires'    : [2],
-    'no-new-require'       : [2],
-    'no-path-concat'       : [0],
-    'no-process-env'       : [0],
-    'no-process-exit'      : [1],
-    'no-restricted-modules': [1],
-    'no-sync'              : [0],
+    'no-unused-vars'            : [2, { vars: 'all', args: 'none' }],
+    'no-use-before-define'      : [2],
 
     // Stylistic Issues
     // ----------------
@@ -176,7 +226,7 @@ module.exports = {
     'func-style'                      : [0],
     'function-call-argument-newline'  : [1, 'consistent'],
     'function-paren-newline'          : [0, 'multiline-arguments'],
-    'id-blacklist'                    : [0],
+    'id-denylist'                     : [0],
     // Not this time.
     'id-length'                       : [0],
     'id-match'                        : [0],
@@ -201,7 +251,7 @@ module.exports = {
     'max-statements-per-line'         : [1, { max: 1 }],
     'multiline-comment-style'         : [0],
     'multiline-ternary'               : [0],
-    'new-cap'                         : [2, { capIsNew: false, newIsCap: true }],
+    'new-cap'                         : [0, { capIsNew: true, newIsCap: true }],
     'new-parens'                      : [2],
     'newline-per-chained-call'        : [1],
     'no-array-constructor'            : [2],
@@ -216,6 +266,7 @@ module.exports = {
     'no-negated-condition'            : [0],
     'no-nested-ternary'               : [0],
     'no-new-object'                   : [2],
+    'no-plusplus'                     : [0],
     'no-restricted-syntax'            : [0],
     'no-tabs'                         : [2],
     'no-ternary'                      : [0],
@@ -259,22 +310,29 @@ module.exports = {
     'arrow-body-style'       : [2, 'as-needed'],
     'arrow-parens'           : [2, 'as-needed'],
     'arrow-spacing'          : [2],
+    'constructor-super'      : [2],
     'generator-star-spacing' : [2, 'before'],
+    'no-class-assign'        : [2],
     'no-confusing-arrow'     : [0],
+    'no-const-assign'        : [2],
+    'no-dupe-class-members'  : [2],
     'no-duplicate-imports'   : [2],
+    'no-new-symbol'          : [2],
+    'no-restricted-exports'  : [0],
     'no-restricted-imports'  : [0],
+    'no-this-before-super'   : [2],
     'no-useless-computed-key': [2],
     'no-useless-constructor' : [1],
     'no-useless-rename'      : [1],
-    'no-var'                 : [0],
-    'object-shorthand'       : [1, 'always'],
+    'no-var'                 : [2],
+    'object-shorthand'       : [2, 'always'],
     'prefer-arrow-callback'  : [0],
-    'prefer-const'           : [1],
+    'prefer-const'           : [2],
     'prefer-destructuring'   : [1],
     'prefer-numeric-literals': [2],
     'prefer-rest-params'     : [1],
-    'prefer-spread'          : [1],
-    'prefer-template'        : [0],
+    'prefer-spread'          : [2],
+    'prefer-template'        : [2],
     'require-yield'          : [2],
     'rest-spread-spacing'    : [2],
     'sort-imports'           : [0],
@@ -284,6 +342,61 @@ module.exports = {
   },
 
   overrides: [
+    {
+      files: ['Gulpfile.js', 'dev/**/*.ts'],
+
+      plugins: ['node'],
+
+      extends: [
+        'plugin:node/recommended',
+      ],
+
+      rules: {
+
+        // eslint-plugin-node
+        // ------------------
+        'node/handle-callback-err'                  : [1],
+        'node/no-callback-literal'                  : [2],
+        'node/no-exports-assign'                    : [2],
+        'node/no-extraneous-import'                 : [0],
+        'node/no-extraneous-require'                : [0],
+        'node/no-missing-import'                    : [0],
+        'node/no-missing-require'                   : [0],
+        'node/no-new-require'                       : [2],
+        'node/no-path-concat'                       : [2],
+        'node/no-process-exit'                      : [2],
+        'node/no-unpublished-bin'                   : [0],
+        'node/no-unpublished-import'                : [0],
+        'node/no-unpublished-require'               : [0],
+        'node/no-unsupported-features/es-builtins'  : [0],
+        'node/no-unsupported-features/es-syntax'    : [0],
+        'node/no-unsupported-features/node-builtins': [2],
+        'node/process-exit-as-throw'                : [2],
+        'node/shebang'                              : [2],
+
+        'node/no-deprecated-api': [2],
+
+        'node/callback-return'                : [1],
+        'node/exports-style'                  : [2],
+        'node/file-extension-in-import'       : [0],
+        'node/global-require'                 : [1],
+        'node/no-mixed-requires'              : [2],
+        'node/no-process-env'                 : [0],
+        'node/no-restricted-import'           : [0],
+        'node/no-restricted-require'          : [0],
+        'node/no-sync'                        : [0],
+        'node/prefer-global/buffer'           : [2],
+        'node/prefer-global/console'          : [2],
+        'node/prefer-global/process'          : [2],
+        'node/prefer-global/text-decoder'     : [2],
+        'node/prefer-global/text-encoder'     : [2],
+        'node/prefer-global/url-search-params': [2],
+        'node/prefer-global/url'              : [2],
+        'node/prefer-promises/dns'            : [2],
+        'node/prefer-promises/fs'             : [2],
+      },
+    },
+
     // {
     //   files: ['**/*.js', '**/*.es6'],
     //
@@ -295,7 +408,7 @@ module.exports = {
     //   // @see https://github.com/babel/eslint-plugin-babel
     //   rules: {
     //     'new-cap'                    : [0],
-    //     'babel/new-cap'              : [2, { capIsNew: false, newIsCap: true }],
+    //     'babel/new-cap'              : [2, { capIsNew: true, newIsCap: true }],
     //     'camelcase'                  : [0],
     //     'babel/camelcase'            : [2, { properties: 'always' }],
     //     'no-invalid-this'            : [0],
@@ -308,13 +421,14 @@ module.exports = {
     //     'semi'                       : [0],
     //     'babel/semi'                 : [2, 'always'],
     //     'no-unused-expressions'      : [0],
-    //     'babel/no-unused-expressions': [2],
+    //     'babel/no-unused-expressions': [2, { allowShortCircuit: true }],
     //     'valid-typeof'               : [0],
     //     'babel/valid-typeof'         : [2],
     //   },
     // },
 
     {
+      // typescript-eslint-plugin rules up to v3.8.0
       files: ['**/*.ts', '**/*.tsx'],
 
       parser: '@typescript-eslint/parser',
@@ -367,8 +481,39 @@ module.exports = {
           },
         ],
         '@typescript-eslint/member-ordering'                       : [0],
-        // Needs type info!
-        '@typescript-eslint/naming-convention'                     : [0],
+        'camelcase'                                                : [0],
+        '@typescript-eslint/naming-convention'                     : [
+          2,
+          {
+            selector         : 'variable',
+            filter           : {
+              regex: '__',
+              match: false,
+            },
+            format           : ['camelCase', 'PascalCase', 'UPPER_CASE'],
+            leadingUnderscore: 'allow',
+          },
+          {
+            selector: 'variable',
+            custom  : {
+              regex: '^[A-Z_]+$',
+              match: true,
+            },
+            format  : null,
+          },
+          {
+            selector: 'property',
+            format  : null,
+          },
+          {
+            selector: 'enumMember',
+            format  : ['UPPER_CASE'],
+          },
+          {
+            selector: 'typeLike',
+            format  : ['PascalCase'],
+          },
+        ],
         '@typescript-eslint/no-dynamic-delete'                     : [2],
         '@typescript-eslint/no-empty-interface'                    : [1],
         '@typescript-eslint/no-explicit-any'                       : [
@@ -421,6 +566,7 @@ module.exports = {
         '@typescript-eslint/no-unused-vars-experimental'           : [0],
         '@typescript-eslint/no-var-requires'                       : [2],
         '@typescript-eslint/prefer-as-const'                       : [1],
+        '@typescript-eslint/prefer-enum-initializers'              : [0],
         '@typescript-eslint/prefer-for-of'                         : [1],
         '@typescript-eslint/prefer-function-type'                  : [1],
         // Needs type info!
@@ -496,15 +642,16 @@ module.exports = {
         '@typescript-eslint/no-extra-semi'              : [0],
         'no-magic-numbers'                              : [0],
         '@typescript-eslint/no-magic-numbers'           : [
-          1,
+          0,
           {
+            // eslint-disable-next-line no-magic-numbers
             ignore            : [-1, 0, 1, 60],
             ignoreArrayIndexes: true,
             detectObjects     : true,
           },
         ],
         'no-unused-expressions'                         : [0],
-        '@typescript-eslint/no-unused-expressions'      : [2],
+        '@typescript-eslint/no-unused-expressions'      : [2, { allowShortCircuit: true }],
         'no-unused-vars'                                : [0],
         '@typescript-eslint/no-unused-vars'             : [2, { vars: 'all', args: 'none' }],
         'no-use-before-define'                          : [0],
@@ -531,23 +678,23 @@ module.exports = {
     //   files: ['**/*.tsx'],
     //
     //   parserOptions: {
-    //     jsx: true,
+    //     jsx: true
     //   },
     //
     //   plugins: [
     //     'react',
-    //     'react-hooks',
+    //     'react-hooks'
     //   ],
     //
     //   extends: [
-    //     'plugin:react/recommended',
+    //     'plugin:react/recommended'
     //   ],
     //
     //   rules: {
     //     'react/prop-types'           : [0],
     //     'react-hooks/rules-of-hooks' : [2],
-    //     'react-hooks/exhaustive-deps': [1],
-    //   },
-    // },
+    //     'react-hooks/exhaustive-deps': [1]
+    //   }
+    // }
   ],
 };

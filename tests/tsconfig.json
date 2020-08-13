@@ -5,7 +5,7 @@
     "declarationDir": null,
     "module"        : "commonjs",
     "outDir"        : "../.testing",
-    "target"        : "es5"
+    "target"        : "es2018"
   },
   "include": [
     "../declarations/*.d.ts",
