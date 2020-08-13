@@ -259,6 +259,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.11.1
+
+* Fix stuff cause json5 def files failed to load.
+
 ### v0.11.0
 
 * Accept JSON5 as def file.
