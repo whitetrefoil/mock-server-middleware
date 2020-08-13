@@ -261,6 +261,10 @@ Changelog
 
 ### v0.11.1
 
+* Optimize logs.
+
+### v0.11.1
+
 * Fix stuff cause json5 def files failed to load.
 
 ### v0.11.0
