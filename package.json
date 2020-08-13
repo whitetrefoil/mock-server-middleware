@@ -1,6 +1,6 @@
 {
   "name": "@whitetrefoil/msm",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A connect middleware of mock server to help develop web app.",
   "main": "lib/common/main.js",
   "module": "lib/esm/main.js",
