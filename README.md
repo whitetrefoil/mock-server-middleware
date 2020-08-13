@@ -259,6 +259,10 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
+### v0.11.3
+
+* Fix wrong version number in README.
+
 ### v0.11.2
 
 * Optimize logs.
