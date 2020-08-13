@@ -259,7 +259,7 @@ This is the spec of the API definition files in JSON.
 Changelog
 ---------
 
-### v0.11.1
+### v0.11.2
 
 * Optimize logs.
 
