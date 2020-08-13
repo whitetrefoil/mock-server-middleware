@@ -2,7 +2,6 @@ import chalk                   from 'chalk';
 import clearRequire            from 'clear-module';
 import * as fs                 from 'fs-extra';
 import JSON5                   from 'json5';
-// tslint:disable-next-line:no-implicit-dependencies
 import { Context, Middleware } from 'koa';
 import * as path               from 'path';
 import stripJsonComments       from 'strip-json-comments';
@@ -11,7 +10,6 @@ import { decompress }          from './decompression';
 import Logger                  from './logger';
 import { IJsonApiDefinition }  from './msm';
 import { IOverrideStore }      from './server';
-// import bodyParser         from 'koa-bodyparser';
 
 
 // region - Constants
@@ -32,7 +30,9 @@ interface IRule {
 // endregion
 
 export function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 export function composeModulePath(
@@ -49,7 +49,7 @@ export function composeModulePath(
   if (config.lowerCase) {
     modulePath = modulePath.toLowerCase();
   }
-  modulePath = modulePath.replace(/[^a-zA-Z0-9/]/g, config.nonChar);
+  modulePath = modulePath.replace(/[^a-zA-Z0-9/]/ug, config.nonChar);
 
   const fullModulePath = path.join(
     process.cwd(),
@@ -84,6 +84,33 @@ export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
 }
 
 /**
+ * @param filePath - path to load file, with ".json5" suffix or not.
+ * @param logger
+ * @returns
+ *     return loaded stuff if successfully loaded;
+ *     return `undefined` if failed to load;
+ */
+export function readJson5DefFromFs(filePath: string, logger: Logger): Middleware|undefined {
+  const formatted = path.extname(filePath) === '.json5' ? filePath : `${filePath}.json5`;
+
+  let raw: string;
+  try {
+    raw = fs.readFileSync(formatted, 'utf8');
+  } catch (e) {
+    logger.warn(`Failed to load file ${formatted}`);
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON5.parse(raw) as IJsonApiDefinition;
+    return convertJsonToHandler(parsed);
+  } catch (e) {
+    logger.warn(`Failed to parse file ${formatted}`);
+  }
+  return undefined;
+}
+
+/**
  * @param filePath - path to load file, with ".json" suffix or not.
  * @param logger
  * @returns
@@ -91,22 +118,21 @@ export function convertJsonToHandler(json: IJsonApiDefinition): Middleware {
  *     return `undefined` if failed to load;
  */
 export function readJsonDefFromFs(filePath: string, logger: Logger): Middleware|undefined {
-  // if (!_.isString(filePath)) { throw new TypeError('Path must be a string!') }
-  const formattedPath = path.extname(filePath) === '.json' ? filePath : `${filePath}.json`;
+  const formatted = path.extname(filePath) === '.json' ? filePath : `${filePath}.json`;
 
-  let loadedFile: string;
+  let raw: string;
   try {
-    loadedFile = fs.readFileSync(formattedPath, 'utf8');
+    raw = fs.readFileSync(formatted, 'utf8');
   } catch (e) {
-    logger.warn(`Failed to load file ${formattedPath}`);
+    logger.warn(`Failed to load file ${formatted}`);
     return undefined;
   }
 
   try {
-    const parsedFile = JSON5.parse(stripJsonComments(loadedFile)) as IJsonApiDefinition;
-    return convertJsonToHandler(parsedFile);
+    const parsed = JSON.parse(stripJsonComments(raw)) as IJsonApiDefinition;
+    return convertJsonToHandler(parsed);
   } catch (e) {
-    logger.warn(`Failed to parse file ${formattedPath}`);
+    logger.warn(`Failed to parse file ${formatted}`);
   }
   return undefined;
 }
@@ -123,11 +149,13 @@ export function readJsDefFromFs(filePath: string, logger: Logger): Middleware|un
   const formattedPath = path.extname(filePath) !== '.json' ? filePath : `${filePath}.js`;
 
   try {
-    const regexp = new RegExp(`^${process.cwd()}`);
+    const regexp = new RegExp(`^${process.cwd()}`, 'u');
     clearRequire.match(regexp);
     // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports,global-require
     const loadedFile = require(formattedPath);
-    if (typeof loadedFile === 'function') { return loadedFile; }
+    if (typeof loadedFile === 'function') {
+      return loadedFile;
+    }
     if (typeof loadedFile?.default === 'function') {
       return loadedFile.default;
     }
@@ -150,18 +178,19 @@ export function load404Module(): Middleware {
  *     return `undefined` if failed to load;
  */
 export function loadModuleFromFs(modulePath: string, logger: Logger): Middleware|undefined {
-  let handler;
-
   const extname = path.extname(modulePath);
 
-  if (extname === '.json' || extname === '.json5' || extname === '') {
-    handler = readJsonDefFromFs(modulePath, logger);
+  switch (extname) {
+    case '.json5':
+      return readJson5DefFromFs(modulePath, logger) ?? readJsDefFromFs(modulePath, logger);
+    case '.json':
+      return readJsonDefFromFs(modulePath, logger) ?? readJsDefFromFs(modulePath, logger);
+    default:
+      return readJson5DefFromFs(modulePath, logger)
+             ?? readJsonDefFromFs(modulePath, logger)
+             ?? readJsDefFromFs(modulePath, logger)
+        ;
   }
-  if (handler != null) {
-    return handler;
-  }
-
-  return readJsDefFromFs(modulePath, logger);
 }
 
 export function loadModuleFromOverrides(
@@ -172,14 +201,14 @@ export function loadModuleFromOverrides(
   const loaded = overrides[modulePath];
 
   if (loaded == null) {
-    return;
+    return undefined;
   }
 
   if (typeof loaded.definition !== 'function') {
     logger.warn(`Overrides for ${modulePath} is corrupted, deleting...`);
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete overrides[modulePath];
-    return;
+    return undefined;
   }
 
   const handler = loaded.definition;
@@ -211,10 +240,10 @@ export function loadModule(modulePath: string, overrides: IOverrideStore, logger
 }
 
 
-async function parseBody(ctx: Context, logger: Logger): Promise<any> {
+async function parseBody(ctx: Context, logger: Logger): Promise<unknown> {
   // const body = ctx.body;
   const rawType = ctx.response.get('Content-Type');
-  const match = rawType.match(/^\w*\/\w*/);
+  const match = rawType.match(/^\w*\/\w*/u);
   const type = match == null ? null : match[0];
 
   const body = await decompress(ctx.body, ctx.response.headers, logger);
@@ -262,18 +291,19 @@ export async function saveModule(ctx: Context, config: IParsedServerConfig, logg
 
   const parsedBody = await parseBody(ctx, logger);
 
+  const parsedHeaders = config.saveHeaders.reduce((prev, curr) => {
+    const value = ctx.get(curr);
+    if (value == null) {
+      return prev;
+    }
+    return { ...prev, [curr]: value };
+  }, {});
+
   const jsonToWrite: IJsonApiDefinition = {
     code,
-    headers: {},
+    headers: parsedHeaders,
     body   : parsedBody,
   };
-
-  for (const name of config.saveHeaders) {
-    const value = ctx.get(name);
-    if (value != null) {
-      jsonToWrite.headers![name] = value;
-    }
-  }
 
   await fs.ensureFile(`${fp}.json`);
   fs.writeFile(`${fp}.json`, JSON.stringify(jsonToWrite, null, 2), 'utf8', err => {
