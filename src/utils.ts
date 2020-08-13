@@ -97,7 +97,9 @@ export function readJson5DefFromFs(filePath: string, logger: Logger): Middleware
   try {
     raw = fs.readFileSync(formatted, 'utf8');
   } catch (e) {
-    logger.warn(`Failed to load file ${formatted}`);
+    if (e.code !== 'ENOENT') {
+      logger.warn(`Failed to load file ${formatted}`);
+    }
     return undefined;
   }
 
@@ -105,7 +107,9 @@ export function readJson5DefFromFs(filePath: string, logger: Logger): Middleware
     const parsed = JSON5.parse(raw) as IJsonApiDefinition;
     return convertJsonToHandler(parsed);
   } catch (e) {
-    logger.warn(`Failed to parse file ${formatted}`);
+    if (e.code !== 'ENOENT') {
+      logger.warn(`Failed to load file ${formatted}`);
+    }
   }
   return undefined;
 }
