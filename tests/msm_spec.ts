@@ -1,35 +1,35 @@
-import { expect }           from 'chai';
-import sinon                from 'sinon';
-import Logger, { LogLevel } from '../src/logger';
-import MSM                  from '../src/msm';
-import MSMServer            from '../src/server';
+import { expect }           from 'chai'
+import sinon                from 'sinon'
+import Logger, { LogLevel } from '../src/logger'
+import MSM                  from '../src/msm'
+import MSMServer            from '../src/server'
 
 describe('MSM', () => {
 
   afterEach(() => {
-    sinon.restore();
-  });
+    sinon.restore()
+  })
 
   it('should be a class', () => {
-    expect(typeof MSM).to.equal('function');
-  });
+    expect(typeof MSM).to.equal('function')
+  })
 
   it('should have default settings', () => {
-    const msm = new MSM();
-    expect(msm.apiPrefixes).to.deep.equal(['/api/']);
-    expect(msm.apiDir).to.equal('stubapi');
-    expect(msm.logger).to.be.instanceOf(Logger);
-    expect(msm.logLevel).to.equal(LogLevel.NONE);
-    expect(msm.lowerCase).to.be.false;
-    expect(msm.nonChar).to.equal('-');
-    expect(msm.overwriteMode).to.be.false;
-    expect(msm.ping).to.equal(0);
-    expect(msm.saveHeaders).to.deep.equal([]);
-    expect(msm.server).to.be.instanceOf(MSMServer);
-  });
+    const msm = new MSM()
+    expect(msm.apiPrefixes).to.deep.equal(['/api/'])
+    expect(msm.apiDir).to.equal('stubapi')
+    expect(msm.logger).to.be.instanceOf(Logger)
+    expect(msm.logLevel).to.equal(LogLevel.NONE)
+    expect(msm.lowerCase).to.be.false
+    expect(msm.nonChar).to.equal('-')
+    expect(msm.overwriteMode).to.be.false
+    expect(msm.ping).to.equal(0)
+    expect(msm.saveHeaders).to.deep.equal([])
+    expect(msm.server).to.be.instanceOf(MSMServer)
+  })
 
   it('can set custom settings', () => {
-    sinon.stub(global.console, 'log').returns(undefined);
+    sinon.stub(global.console, 'log').returns(undefined)
 
     const msm = new MSM({
       apiPrefixes  : ['a'],
@@ -40,16 +40,16 @@ describe('MSM', () => {
       overwriteMode: true,
       ping         : 123,
       saveHeaders  : ['asdf'],
-    });
-    expect(msm.apiPrefixes).to.deep.equal(['a']);
-    expect(msm.apiDir).to.equal('b');
-    expect(msm.logLevel).to.equal(LogLevel.INFO);
-    expect(msm.lowerCase).to.be.true;
-    expect(msm.nonChar).to.equal('c');
-    expect(msm.overwriteMode).to.be.true;
-    expect(msm.ping).to.equal(123);
-    expect(msm.saveHeaders).to.deep.equal(['asdf']);
-  });
+    })
+    expect(msm.apiPrefixes).to.deep.equal(['a'])
+    expect(msm.apiDir).to.equal('b')
+    expect(msm.logLevel).to.equal(LogLevel.INFO)
+    expect(msm.lowerCase).to.be.true
+    expect(msm.nonChar).to.equal('c')
+    expect(msm.overwriteMode).to.be.true
+    expect(msm.ping).to.equal(123)
+    expect(msm.saveHeaders).to.deep.equal(['asdf'])
+  })
 
   describe.skip('Server related functionality', () => {
     // TODO
@@ -315,5 +315,5 @@ describe('MSM', () => {
         })
     */
 
-  });
-});
+  })
+})

@@ -1,101 +1,102 @@
-// tslint:disable-next-line:no-implicit-dependencies
-import { Middleware }                                                   from 'koa';
-import qs, { ParsedUrlQuery }                                           from 'querystring';
-import stripJsonComments                                                from 'strip-json-comments';
-import * as url                                                         from 'url';
-import { IParsedServerConfig }                                          from './config';
-import { IJsonApiDefinition }                                           from './msm';
-import { composeModulePath, convertJsonToHandler, isJsonApiDefinition } from './utils';
+import type { Middleware }                                              from 'koa'
+import qs, { ParsedUrlQuery }                                           from 'querystring'
+import stripJsonComments                                                from 'strip-json-comments'
+import type { Url }                                                     from 'url'
+import type { IParsedServerConfig }                                     from './config'
+import type { IJsonApiDefinition }                                      from './msm'
+import { composeModulePath, convertJsonToHandler, isJsonApiDefinition } from './utils'
 
 
 export interface IOverride {
-  definition: Middleware;
-  once: boolean;
+  definition: Middleware
+  once: boolean
 }
 
 export interface IOverrideStore {
-  [path: string]: IOverride;
+  [path: string]: IOverride
 }
 
 export interface ICallLog {
-  method: string;
-  href: string;
-  search: string|null;
-  query: ParsedUrlQuery|null;
-  pathname: string;
-  body: object|null;
+  method: string
+  href: string
+  search: string|null
+  query: ParsedUrlQuery|null
+  pathname: string
+  body: unknown
 }
 
-export type IDefinition = string|IJsonApiDefinition|Middleware;
+export type IDefinition = string|IJsonApiDefinition|Middleware
 
 
 export default class MSMServer {
-  readonly config: IParsedServerConfig;
-  readonly overrides: IOverrideStore = {};
-  readonly callLogs: ICallLog[] = [];
-  isRecording: boolean = false;
+  readonly config: IParsedServerConfig
+  readonly overrides: IOverrideStore = {}
+  readonly callLogs: ICallLog[] = []
+  isRecording: boolean = false
 
   constructor(config: IParsedServerConfig) {
-    this.config = config;
+    this.config = config
   }
 
-  logCall(method: string, calledUrl: url.Url, body?: object) {
-    if (this.isRecording === false) { return; }
-    const query = typeof calledUrl.query === 'string' ? qs.parse(calledUrl.query) : calledUrl.query || null;
+  logCall(method: string, calledUrl: Url, body?: Record<string|number|symbol, unknown>) {
+    if (this.isRecording === false) {
+      return
+    }
+    const query = typeof calledUrl.search === 'string' ? qs.parse(calledUrl.search) : calledUrl.search
     this.callLogs.push({
       method,
-      href    : calledUrl.href || '<unknown url>',
-      search  : calledUrl.search || null,
+      href    : calledUrl.href ?? '<unknown url>',
+      search  : calledUrl.search ?? null,
       query,
-      pathname: calledUrl.pathname || '<unknown pathname>',
-      body    : body || null,
-    });
+      pathname: calledUrl.pathname ?? '<unknown pathname>',
+      body    : body ?? null,
+    })
   }
 
   once(method: string, calledUrl: string, override: IDefinition, preserveQuery = false) {
-    const req = { url: calledUrl, method };
+    const req = { url: calledUrl, method }
 
-    let definition = override;
+    let definition = override
 
     if (typeof definition === 'string') {
-      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition;
+      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
     }
 
     if (isJsonApiDefinition(definition)) {
-      definition = convertJsonToHandler(definition);
+      definition = convertJsonToHandler(definition)
     }
 
     this.overrides[composeModulePath(req, this.config, preserveQuery)] = {
       definition,
       once: true,
-    };
+    }
   }
 
   on(method: string, calledUrl: string, override: IDefinition, preserveQuery = false) {
-    const req = { url: calledUrl, method };
+    const req = { url: calledUrl, method }
 
-    let definition = override;
+    let definition = override
 
     if (typeof definition === 'string') {
-      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition;
+      definition = JSON.parse(stripJsonComments(definition)) as IJsonApiDefinition
     }
 
     if (isJsonApiDefinition(definition)) {
-      definition = convertJsonToHandler(definition);
+      definition = convertJsonToHandler(definition)
     }
 
     this.overrides[composeModulePath(req, this.config, preserveQuery)] = {
       definition,
       once: false,
-    };
+    }
   }
 
   off(method?: string, calledUrl?: string, preserveQuery = false) {
     if (method != null && calledUrl != null) {
-      const req = { url: calledUrl, method };
+      const req = { url: calledUrl, method }
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete this.overrides[composeModulePath(req, this.config, preserveQuery)];
-      return;
+      delete this.overrides[composeModulePath(req, this.config, preserveQuery)]
+      return
     }
 
     if (method == null && calledUrl == null) {
@@ -103,14 +104,14 @@ export default class MSMServer {
         // eslint-disable-next-line no-prototype-builtins
         if (this.overrides.hasOwnProperty(key)) {
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete this.overrides[key];
+          delete this.overrides[key]
         }
       }
-      return;
+      return
     }
 
     throw new Error('Params of msm.server.off() should either be both given or be neither given. '
-                    + 'But now only one is given.  This usually indicates a problem in code.');
+                    + 'But now only one is given.  This usually indicates a problem in code.')
   }
 
   /**
@@ -122,13 +123,13 @@ export default class MSMServer {
   called(pathname?: string|RegExp, method?: string): ICallLog[] {
     return this.callLogs.filter(log => {
       if (typeof method === 'string' && method.toLowerCase() !== log.method) {
-        return false;
+        return false
       }
       if (pathname != null && log.pathname.search(pathname) !== 0) {
-        return false;
+        return false
       }
-      return true;
-    });
+      return true
+    })
   }
 
   /**
@@ -144,27 +145,27 @@ export default class MSMServer {
    */
   record(isLogFlushCheckBypassed: boolean = false): void {
     if (this.isRecording === true) {
-      throw new Error('MSM is already recording! Check your test code!');
+      throw new Error('MSM is already recording! Check your test code!')
     }
     if (!isLogFlushCheckBypassed && this.callLogs.length > 0) {
       throw new Error('Previous request logs haven\'t been flushed yet!'
-                      + '  If you really want to bypass this check, use `msm.server.record(true)`.');
+                      + '  If you really want to bypass this check, use `msm.server.record(true)`.')
     }
-    this.isRecording = true;
+    this.isRecording = true
   }
 
   /**
    * Stop recording requests but not to flush the logs.
    */
   stopRecording(): void {
-    this.isRecording = false;
+    this.isRecording = false
   }
 
   /**
    * Stop recording & flush all logs of requests.
    */
   flush(): void {
-    this.isRecording = false;
-    this.callLogs.length = 0;
+    this.isRecording = false
+    this.callLogs.length = 0
   }
 }

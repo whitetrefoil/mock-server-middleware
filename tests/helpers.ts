@@ -1,15 +1,16 @@
-import { Context }     from 'koa';
-import { SinonStatic } from 'sinon';
+import type { Context }     from 'koa'
+import type { SinonStatic } from 'sinon'
 
-export function mockCtx(sinon: SinonStatic, request: any = { method: 'GET', url: '/' }) {
+export function mockCtx(sinon: SinonStatic, request: unknown = { method: 'GET', url: '/' }): Context {
   return {
     request,
     set   : sinon.fake(),
     status: null,
     body  : null,
-  } as any as Context;
+  } as unknown as Context
 }
 
-export function mockNext() {
-  return () => Promise.resolve();
+export function generateMockNext() {
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  return () => Promise.resolve()
 }

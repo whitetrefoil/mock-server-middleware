@@ -1,0 +1,7 @@
+env:
+  mocha: true
+
+rules:
+  "no-console": 0
+  "@typescript-eslint/no-unused-expressions": 0
+  "@typescript-eslint/unbound-method": 0

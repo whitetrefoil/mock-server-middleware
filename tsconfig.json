@@ -1,35 +1,36 @@
 {
   "compileOnSave"  : false,
   "compilerOptions": {
-    "allowJs"                       : false,
-    "allowSyntheticDefaultImports"  : true,
+    "allowJs"                       : true,
     "baseUrl"                       : ".",
     "declaration"                   : true,
-    "declarationDir"                : "lib/types",
+    "declarationDir"                : "lib",
     "emitDecoratorMetadata"         : true,
     "esModuleInterop"               : true,
     "experimentalDecorators"        : true,
+    "importsNotUsedAsValues"        : "error",
     "inlineSourceMap"               : false,
     "inlineSources"                 : false,
-    "lib"                           : ["esnext", "dom", "dom.iterable"],
+    "lib"                           : ["esnext"],
     "module"                        : "esnext",
     "moduleResolution"              : "node",
-    "noImplicitAny"                 : true,
-    "noImplicitReturns"             : true,
-    "outDir"                        : "lib/esm",
+    "outDir"                        : "lib",
     "paths"                         : {
       "~/*": ["./src/*"]
     },
-    "removeComments"                : false,
     "skipDefaultLibCheck"           : true,
     "skipLibCheck"                  : true,
     "sourceMap"                     : true,
     "strict"                        : true,
     "suppressImplicitAnyIndexErrors": true,
-    "target"                        : "es2018"
+    "target"                        : "esnext"
   },
   "include"        : [
-    "declarations/**/*.d.ts",
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.js",
+    "declarations/*.d.ts"
+  ],
+  "exclude"        : [
+    "**/node_modules/**"
   ]
 }

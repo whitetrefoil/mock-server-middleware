@@ -1,6 +1,4 @@
-/* eslint-disable no-console,@typescript-eslint/no-magic-numbers */
-
-import chalk, { Chalk } from 'chalk';
+import chalk, { Chalk } from 'chalk'
 
 /**
  * @param printFn - A function to print the log, usually `console.log` or `console.error`.
@@ -17,61 +15,61 @@ const print = (
     new Date()
       .toTimeString()
       .substr(0, 8)
-  } - ${message}`);
-};
+  } - ${message}`)
+}
 
 export enum LogLevel {
   DEBUG = 1,
   INFO = 2,
-  LOG = INFO,
+  LOG = 2,
   WARN = 3,
   ERROR = 4,
   NONE = 10,
 }
 
 class Logger {
-  readonly logLevel: LogLevel;
+  readonly logLevel: LogLevel
 
   constructor(level: LogLevel) {
-    this.logLevel = level in LogLevel ? level : LogLevel.NONE;
+    this.logLevel = level in LogLevel ? level : LogLevel.NONE
   }
 
   debug(message: string) {
     if (this.logLevel > LogLevel.DEBUG) {
-      return;
+      return
     }
     if (process.env.NODE_ENV === 'development') {
-      print(console.log, chalk.magenta, message);
+      print(console.log, chalk.magenta, message)
     }
   }
 
   info(message: string) {
     if (this.logLevel > LogLevel.INFO) {
-      return;
+      return
     }
-    print(console.log, chalk.cyan, message);
+    print(console.log, chalk.cyan, message)
   }
 
   log(message: string) {
     if (this.logLevel > LogLevel.LOG) {
-      return;
+      return
     }
-    print(console.log, chalk.green, message);
+    print(console.log, chalk.green, message)
   }
 
   warn(message: string) {
     if (this.logLevel > LogLevel.WARN) {
-      return;
+      return
     }
-    print(console.log, chalk.yellow, message);
+    print(console.log, chalk.yellow, message)
   }
 
   error(message: string) {
     if (this.logLevel > LogLevel.ERROR) {
-      return;
+      return
     }
-    print(console.log, chalk.red, message);
+    print(console.log, chalk.red, message)
   }
 }
 
-export default Logger;
+export default Logger

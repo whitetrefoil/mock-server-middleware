@@ -1,4 +1,4 @@
-import { LogLevel } from './logger';
+import { LogLevel } from './logger'
 
 export interface IMockServerConfig {
   /**
@@ -6,36 +6,36 @@ export interface IMockServerConfig {
    * it will be handled by the mock server,
    * otherwise it will call `next()` to pass the request to the next middleware.
    */
-  apiPrefixes?: string[];
+  apiPrefixes?: string[]
 
   /** Where the API definition files locate.  Related to PWD. */
-  apiDir?: string;
+  apiDir?: string
 
   /** Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'. */
-  logLevel?: LogLevel;
+  logLevel?: LogLevel
 
   /** Whether to unify all cases to lower case. */
-  lowerCase?: boolean;
+  lowerCase?: boolean
 
   /** Replace `/[^\w\d-]/g` to this when looking for API definition files. */
-  nonChar?: string;
+  nonChar?: string
 
   /**
    * Whether to overwrite existing definition file.
    * Only take effect when using "recorder" middleware.
    */
-  overwriteMode?: boolean;
+  overwriteMode?: boolean
 
   /**
    * Specific some headers to save in "recorder" mode.
    */
-  saveHeaders?: string[];
+  saveHeaders?: string[]
 
   /** Delay before response, in ms. */
-  ping?: number;
+  ping?: number
 }
 
-export type IParsedServerConfig = Required<IMockServerConfig>;
+export type IParsedServerConfig = Required<IMockServerConfig>
 
 export function setOptions<APP extends IMockServerConfig>(
   _this: APP,
@@ -43,28 +43,28 @@ export function setOptions<APP extends IMockServerConfig>(
 ) {
   if (options != null) {
     if (options.apiPrefixes != null) {
-      _this.apiPrefixes = options.apiPrefixes;
+      _this.apiPrefixes = options.apiPrefixes
     }
     if (typeof options.apiDir === 'string') {
-      _this.apiDir = options.apiDir;
+      _this.apiDir = options.apiDir
     }
     if (typeof options.nonChar === 'string') {
-      _this.nonChar = options.nonChar;
+      _this.nonChar = options.nonChar
     }
     if (options.logLevel != null && options.logLevel in LogLevel) {
-      _this.logLevel = options.logLevel;
+      _this.logLevel = options.logLevel
     }
     if (options.lowerCase === true) {
-      _this.lowerCase = options.lowerCase;
+      _this.lowerCase = options.lowerCase
     }
     if (options.overwriteMode === true) {
-      _this.overwriteMode = options.overwriteMode;
+      _this.overwriteMode = options.overwriteMode
     }
-    if (options.saveHeaders != null && options.saveHeaders.length != null) {
-      _this.saveHeaders = options.saveHeaders;
+    if (options.saveHeaders?.length != null) {
+      _this.saveHeaders = options.saveHeaders
     }
     if (Number.isFinite(options.ping as number)) {
-      _this.ping = options.ping as number;
+      _this.ping = options.ping as number
     }
   }
 }
