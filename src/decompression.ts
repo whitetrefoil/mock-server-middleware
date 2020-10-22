@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from 'http'
 import * as zlib                    from 'zlib'
-import type Logger                  from './logger'
+import type { Logger }              from './interfaces'
 
 
 type Algorithm = (buf: Buffer, options: zlib.ZlibOptions, callback: zlib.CompressCallback) => void

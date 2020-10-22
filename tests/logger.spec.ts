@@ -1,7 +1,7 @@
-import chai, { expect }     from 'chai'
-import sinon, { SinonStub } from 'sinon'
-import sinonChai            from 'sinon-chai'
-import Logger, { LogLevel } from '../src/logger'
+import chai, { expect }           from 'chai'
+import sinon, { SinonStub }       from 'sinon'
+import sinonChai                  from 'sinon-chai'
+import { createLogger, LogLevel } from '~/logger'
 
 chai.use(sinonChai)
 
@@ -12,7 +12,7 @@ describe('Logger', () => {
   })
 
   it('should be exported from index', () => {
-    expect(Logger).not.to.be.undefined
+    expect(createLogger).to.a('function')
   })
 
   describe('Log Level ::', () => {
@@ -27,45 +27,45 @@ describe('Logger', () => {
     })
 
     it('should not show debug when level is "INFO"', () => {
-      const logger = new Logger(LogLevel.INFO)
+      const logger = createLogger(LogLevel.INFO)
       logger.debug('asdf')
       expect(console.log).not.to.have.been.called
       logger.info('qwert')
       expect(console.log).to.have.been.called
     })
     it('should not show debug when level is "LOG"', () => {
-      const logger = new Logger(LogLevel.LOG)
+      const logger = createLogger(LogLevel.LOG)
       logger.debug('asdf')
       expect(console.log).not.to.have.been.called
       logger.log('qwert')
       expect(console.log).to.have.been.called
     })
     it('should not show log when level is "WARN"', () => {
-      const logger = new Logger(LogLevel.WARN)
+      const logger = createLogger(LogLevel.WARN)
       logger.log('asdf')
       expect(console.log).not.to.have.been.called
       logger.warn('qwert')
       expect(console.log).to.have.been.called
     })
     it('should not show info when level is "WARN"', () => {
-      const logger = new Logger(LogLevel.WARN)
+      const logger = createLogger(LogLevel.WARN)
       logger.info('asdf')
       expect(console.log).not.to.have.been.called
     })
     it('should not show warning when level is "ERROR"', () => {
-      const logger = new Logger(LogLevel.ERROR)
+      const logger = createLogger(LogLevel.ERROR)
       logger.warn('asdf')
       expect(console.log).not.to.have.been.called
       logger.error('qwert')
       expect(console.log).to.have.been.called
     })
     it('should not show anything when level is "NONE"', () => {
-      const logger = new Logger(LogLevel.NONE)
+      const logger = createLogger(LogLevel.NONE)
       logger.error('asdf')
       expect(console.log).not.to.have.been.called
     })
     it('should have default level of "NONE"', () => {
-      const logger = new Logger(123)
+      const logger = createLogger(123)
       logger.error('asdf')
       expect(console.log).not.to.have.been.called
     })

@@ -1,6 +1,11 @@
-import { LogLevel } from './logger'
+import { LogLevel }      from './logger'
+import { isStringArray } from './utils'
 
-export interface IMockServerConfig {
+
+export interface MockServerConfig {
+  /** Where the API definition files locate.  Related to PWD. */
+  apiDir?: string
+
   /**
    * If a request path starts like one of this,
    * it will be handled by the mock server,
@@ -8,8 +13,13 @@ export interface IMockServerConfig {
    */
   apiPrefixes?: string[]
 
-  /** Where the API definition files locate.  Related to PWD. */
-  apiDir?: string
+  /**
+   * Ignore certain search queries when looking up for definitions & recording.
+   * Set to `false` to preserve every search queries.
+   * Set to `true` to ignore all.
+   * Default to `true`.
+   */
+  ignoreQueries?: string[]|boolean
 
   /** Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'. */
   logLevel?: LogLevel
@@ -26,45 +36,28 @@ export interface IMockServerConfig {
    */
   overwriteMode?: boolean
 
+  /** Delay before response, in ms. */
+  ping?: number
+
   /**
    * Specific some headers to save in "recorder" mode.
    */
   saveHeaders?: string[]
-
-  /** Delay before response, in ms. */
-  ping?: number
 }
 
-export type IParsedServerConfig = Required<IMockServerConfig>
+export type ParsedServerConfig = Required<MockServerConfig>
 
-export function setOptions<APP extends IMockServerConfig>(
-  _this: APP,
-  options?: IMockServerConfig,
-) {
-  if (options != null) {
-    if (options.apiPrefixes != null) {
-      _this.apiPrefixes = options.apiPrefixes
-    }
-    if (typeof options.apiDir === 'string') {
-      _this.apiDir = options.apiDir
-    }
-    if (typeof options.nonChar === 'string') {
-      _this.nonChar = options.nonChar
-    }
-    if (options.logLevel != null && options.logLevel in LogLevel) {
-      _this.logLevel = options.logLevel
-    }
-    if (options.lowerCase === true) {
-      _this.lowerCase = options.lowerCase
-    }
-    if (options.overwriteMode === true) {
-      _this.overwriteMode = options.overwriteMode
-    }
-    if (options.saveHeaders?.length != null) {
-      _this.saveHeaders = options.saveHeaders
-    }
-    if (Number.isFinite(options.ping as number)) {
-      _this.ping = options.ping as number
-    }
+
+export function parseConfig(config: MockServerConfig): ParsedServerConfig {
+  return {
+    apiDir       : typeof config.apiDir === 'string' ? config.apiDir : 'stubapi',
+    apiPrefixes  : isStringArray(config.apiPrefixes) ? config.apiPrefixes : ['/api/'],
+    ignoreQueries: isStringArray(config.ignoreQueries) || typeof config.ignoreQueries === 'boolean' ? config.ignoreQueries : true,
+    logLevel     : config.logLevel ?? LogLevel.NONE,
+    lowerCase    : config.lowerCase ?? false,
+    nonChar      : config.nonChar ?? '-',
+    overwriteMode: config.overwriteMode ?? false,
+    ping         : config.ping ?? 0,
+    saveHeaders  : isStringArray(config.saveHeaders) ? config.saveHeaders : [],
   }
 }

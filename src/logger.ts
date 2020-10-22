@@ -1,22 +1,6 @@
 import chalk, { Chalk } from 'chalk'
+import type { Logger, PrintFn } from './interfaces'
 
-/**
- * @param printFn - A function to print the log, usually `console.log` or `console.error`.
- * @param chalkFn - A function to render the text style of leading label,
- *                  usually a "Chalk" function to change text color.
- * @param message - message to print.
- */
-const print = (
-  printFn: (message: string) => void,
-  chalkFn: Chalk,
-  message: string,
-) => {
-  printFn(`${chalkFn('MDM')}@${
-    new Date()
-      .toTimeString()
-      .substr(0, 8)
-  } - ${message}`)
-}
 
 export enum LogLevel {
   DEBUG = 1,
@@ -27,49 +11,50 @@ export enum LogLevel {
   NONE = 10,
 }
 
-class Logger {
-  readonly logLevel: LogLevel
-
-  constructor(level: LogLevel) {
-    this.logLevel = level in LogLevel ? level : LogLevel.NONE
-  }
-
-  debug(message: string) {
-    if (this.logLevel > LogLevel.DEBUG) {
-      return
-    }
-    if (process.env.NODE_ENV === 'development') {
-      print(console.log, chalk.magenta, message)
-    }
-  }
-
-  info(message: string) {
-    if (this.logLevel > LogLevel.INFO) {
-      return
-    }
-    print(console.log, chalk.cyan, message)
-  }
-
-  log(message: string) {
-    if (this.logLevel > LogLevel.LOG) {
-      return
-    }
-    print(console.log, chalk.green, message)
-  }
-
-  warn(message: string) {
-    if (this.logLevel > LogLevel.WARN) {
-      return
-    }
-    print(console.log, chalk.yellow, message)
-  }
-
-  error(message: string) {
-    if (this.logLevel > LogLevel.ERROR) {
-      return
-    }
-    print(console.log, chalk.red, message)
-  }
+/**
+ * @param printFn - A function to print the log, usually `console.log` or `console.error`.
+ * @param chalkFn - A function to render the text style of leading label,
+ *                  usually a "Chalk" function to change text color.
+ * @param message - message to print.
+ */
+const print = (
+  chalkFn: Chalk,
+  message: string,
+) => {
+  console.log(`${chalkFn('MDM')}@${
+    new Date()
+      .toTimeString()
+      .substr(0, 8)
+  } - ${message}`)
 }
 
-export default Logger
+
+export const createLogger = (level: LogLevel): Logger => {
+  const _level = level in LogLevel ? level : LogLevel.NONE
+
+  const printF = (levelLimit: LogLevel, color: Chalk, env?: string): PrintFn => {
+    if (env == null) {
+      return message => {
+        if (_level > levelLimit) {
+          return
+        }
+        print(color, message)
+      }
+    }
+
+    return message => {
+      if (_level > levelLimit || process.env.NODE_ENV !== env) {
+        return
+      }
+      print(color, message)
+    }
+  }
+
+  return {
+    debug: printF(LogLevel.DEBUG, chalk.magenta, 'development'),
+    info : printF(LogLevel.INFO, chalk.cyan),
+    log  : printF(LogLevel.LOG, chalk.green),
+    warn : printF(LogLevel.WARN, chalk.yellow),
+    error: printF(LogLevel.ERROR, chalk.red),
+  }
+}

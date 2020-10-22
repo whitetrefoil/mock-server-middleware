@@ -1,11 +1,12 @@
-import Koa, { Middleware } from 'koa'
-import bodyParser          from 'koa-bodyparser'
-import MSM                 from './msm'
-
-export { MSM }
-
 export { LogLevel } from './logger'
 
-export { IMockServerConfig } from './config'
+export { MockServerConfig } from './config'
 
-export { Koa, Middleware, bodyParser }
+export {
+  MsmParameterizedContext as ParameterizedContext,
+  MsmMiddleware as Middleware,
+  JsonApiDefinition,
+} from './interfaces'
+
+export { default as createMockServer } from './mock-server'
+export { default as createRecorder } from './recorder'
