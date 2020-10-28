@@ -1,6 +1,6 @@
 {
   "name": "@whitetrefoil/msm",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "A connect middleware of mock server to help develop web app.",
   "keywords": [
     "mock",

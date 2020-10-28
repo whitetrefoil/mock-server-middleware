@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v1.0.0-alpha.2
+
+* Export `.d.ts` files.
+
 ### v1.0.0-alpha.1
 
 * A totally rewritten API.
