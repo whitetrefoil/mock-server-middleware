@@ -174,6 +174,13 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v1.0.0-alpha.1
+
+* A totally rewritten API.
+* Support for tests has been removed,
+  use [`msw`](https://mswjs.io/)
+  or [`nork`](https://github.com/nock/nock) instead.
+
 ### v0.11.3
 
 * Fix wrong version number in README.
