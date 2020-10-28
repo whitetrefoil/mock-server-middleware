@@ -1,35 +1,79 @@
-import parseurl                          from 'parseurl'
-import { MockServerConfig, parseConfig } from './config'
-import { loadDef }                       from './definition'
-import load404Def                        from './definition/load-404'
-import type { MsmMiddleware }            from './interfaces'
-import { createLogger }                  from './logger'
-import { composeModulePath, delay }      from './utils'
+import parseurl                                                         from 'parseurl'
+import { logConfig, MockServerConfig, parseConfig, ParsedServerConfig } from './config'
+import { loadDef }                                                      from './definition'
+import load404Def                                                       from './definition/load-404'
+import type { Logger, MsmMiddleware }                                   from './interfaces'
+import { createLogger }                                                 from './logger'
+import { composeModulePath, delay }                                     from './utils'
+
+
+function tryLoadModule(
+  {
+    method,
+    path,
+    pathname,
+    search,
+  }: {
+    method: string
+    path: string
+    pathname: string
+    search: string|null
+  },
+  {
+    apiDir,
+    fallbackToNoQuery,
+    ignoreQueries,
+    lowerCase,
+    nonChar,
+  }: ParsedServerConfig,
+  logger: Logger,
+): MsmMiddleware {
+  const modulePath = composeModulePath({
+    method,
+    pathname,
+    search,
+    lowerCase,
+    nonChar,
+    apiDir,
+    ignoreQueries,
+  })
+
+  const handler = loadDef(modulePath, logger)
+
+  if (handler != null) {
+    return handler
+  }
+
+  if (fallbackToNoQuery !== true) {
+    logger.warn(`StubAPI not found for: "${modulePath.toString()}"`)
+    return load404Def()
+  }
+
+  const fallbackModulePath = composeModulePath({
+    method,
+    pathname,
+    search,
+    lowerCase,
+    nonChar,
+    apiDir,
+    ignoreQueries: true,
+  })
+
+  const fallbackHandler = loadDef(fallbackModulePath, logger)
+  if (fallbackHandler != null) {
+    return fallbackHandler
+  }
+
+  logger.warn(`StubAPI not found for: "${modulePath.toString()}"`)
+  return load404Def()
+}
 
 
 export default function createMockServer(config: MockServerConfig = {}): MsmMiddleware {
-  const {
-    apiDir,
-    apiPrefixes,
-    logLevel,
-    lowerCase,
-    nonChar,
-    overwriteMode,
-    ping,
-    ignoreQueries,
-    saveHeaders,
-  } = parseConfig(config)
-  const logger = createLogger(logLevel)
+  const cfg = parseConfig(config)
+  const logger = createLogger(cfg.logLevel)
   logger.warn('MSM middleware initialized')
-  logger.log(`ignoreQueries: ${ignoreQueries.toString()}`)
-  logger.log(`apiDir: ${apiDir}`)
-  logger.log(`apiPrefixes: ${apiPrefixes.toString()}`)
-  logger.log(`logLevel: ${logLevel}`)
-  logger.log(`lowerCase: ${lowerCase.toString()}`)
-  logger.log(`nonChar: ${nonChar}`)
-  logger.log(`overwriteMode: ${overwriteMode.toString()}`)
-  logger.log(`ping: ${ping}`)
-  logger.log(`saveHeaders: ${saveHeaders.toString()}`)
+  logConfig(cfg, logger)
 
   return async(ctx, next) => {
     const { method } = ctx.request
@@ -45,7 +89,7 @@ export default function createMockServer(config: MockServerConfig = {}): MsmMidd
       return
     }
 
-    if (apiPrefixes.every(prefix => !pathname.startsWith(prefix))) {
+    if (cfg.apiPrefixes.every(prefix => !pathname.startsWith(prefix))) {
       logger.debug(`NOT HIT: ${method} ${path}`)
       return
     }
@@ -53,19 +97,10 @@ export default function createMockServer(config: MockServerConfig = {}): MsmMidd
     logger.info(`${method} ${path}`)
     ctx.set('x-mock-server-middleware', 'stubapi')
 
-    const modulePath = composeModulePath({
-      method,
-      pathname,
-      search,
-      lowerCase,
-      nonChar,
-      apiDir,
-      ignoreQueries,
-    })
+    const delayPromise = delay(cfg.ping)
 
-    const handler = loadDef(modulePath, logger) ?? load404Def()
-
-    await delay(ping)
+    const handler = tryLoadModule({ method, path, pathname, search }, cfg, logger)
+    await delayPromise
     await handler(ctx, next)
   }
 }
