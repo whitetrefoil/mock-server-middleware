@@ -30,9 +30,7 @@
   "author": "WhiteTrefoil <whitetrefoil@gmail.com>",
   "license": "MIT",
   "files": [
-    "lib/**/*.js",
-    "lib/types/**/*.d.ts",
-    "README.md"
+    "lib"
   ],
   "directories": {
     "test": "tests"
