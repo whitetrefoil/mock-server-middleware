@@ -3,36 +3,23 @@
 
 **WARNING: THIS APPLICATION IS STILL DEVELOPING!!!**
 
-A connect middleware of mock server to help develop web app.
+A Koa middleware of mock server to help develop web app.
 
-Why This?
----------
-
-As a web developer, during developing,
-I need a mock server to simulate the web services.
-  
-Previously I use a few very simple code in a `gulp-connect` server
-which will return static JSON file located in FS using the request path.
-But when I want to write some e2e tests, its not flexible enough.
-
-So I decided to write this one (for myself).  Besides return static JSON files,
-it will also be able to load functions to do some dynamic jobs.  And even more,
-it should have API to change the behavior during run time (e.g. in test specs).
-
-How To Use (Simplest Example)
+How To Use (the Simplest Example)
 -----------------------------
 
 Gulpfile.js:
 ```typescript
 import gulp from 'gulp'
-import { bodyParser, Koa, LogLevel, MSM } from '@whitetrefoil/msm'
+import { bodyParser, Koa, LogLevel, createMockServer } from '@whitetrefoil/msm'
 
 gulp.task('backend', (done) => {
   const app = new Koa()
 
   console.log('Will use StubAPI mode.')
 
-  const msm = new MSM({
+  app.use(bodyParser())
+  app.use(createMockServer({
     // If a request path starts like one of below,
     // it will be handled by the mock server,
     // otherwise it will call `next()` to pass the request to the next middleware.
@@ -40,10 +27,7 @@ gulp.task('backend', (done) => {
     // Where the API definition files locate.  Related to PWD.
     apiDir     : 'myMockFilesInThisDir',
     logLevel   : LogLevel.WARN,
-  })
-
-  app.use(bodyParser())
-  app.use(msm.middleware())
+  }))
 
   app.listen(8889, () => {
     console.log(`Backend server listening at port 8889`)
@@ -100,153 +84,53 @@ module.exports = async(ctx, next) => {
 }
 ```
 
-tests/user-page/page-title-spec.js
-```javascript
-const { msm } = require('../setup/mock-server-setup')
-const server = msm.server
-
-describe('User Page ::', () => {
-  beforeEach(() => server.record())
-  afterEach(() => server.flush())
-  describe('Page Title ::', () => {
-    it('should say hello to the user', () => {
-      server.once('GET', '/user-service/users/1', {
-        code: 200,
-        body: {
-          _code   : 0,
-          _message: 'OK',
-          data    : { id: 1, name: 'Tester' },
-        },
-      })
-      server.once('POST', '/audit-service/login?userId=1', {
-        code: 201,
-        body: {
-          _code   : 0,
-          _message: 'OK',
-          data    : null,
-        },
-      })
-
-      browser.url('http://localhost:8080/home/1')
-        .element('#title')
-        .getText().should.eventually.equal('Hello, Tester!')
-
-      server.called('/user-service/users/1', 'GET').length.should.equal(1)
-      const logRequest = server.called(/.*\/login\//)
-      logRequest.length.should.equal(1)
-      logRequest[0].query.userId.should.equal(1)
-      (Date.now() - logRequest[0].body.timestamp).should.be.at.most(10000)
-    })
-  })
-})
-```
-
 API Doc
 -------
 
-### `new MSM(options)`
+### MockServerConfig
 
-Construct a MSM instance.
+Options of MSM middleware
 
-Available options:
-
+* `apiDir?: string` - Where the API definition files locate.  Related to PWD.
 * `apiPrefixes?: string[]` - If a request path starts like one of this,
   it will be handled by the mock server,
   otherwise it will call `next()` to pass the request to the next middleware.
-* `apiDir?: string` - Where the API definition files locate.  Related to PWD.
+* `fallbackToNoQuery?: boolean` - If true (and "ignoreQueries" is not `true`),
+  when failed to load definition from default location,
+  MSM will do another attempt w/ `"ignoreQueries": true`.
+  Default to `false`.
+* `ignoreQueries?: string[]|boolean` - Ignore certain search queries when looking up for definitions & recording.
+  Set to `false` to preserve every search queries.
+  Set to `true` to ignore all.
+  Default to `true`.
 * `logLevel?: LogLevel` - Log level. 'INFO' & 'LOG' is the same. Default is 'NONE'. Can be a `LogLevel` enum if using TypeScript, otherwise a string like `"INFO"` is acceptable.
 * `lowerCase?: boolean` - Whether to unify all cases to lower case.
 * `nonChar?: string` - Replace `/[^a-zA-Z0-9/]/g` to this when looking for API definition files.
 * `overwriteMode?: boolean` - Whether to overwrite existing definition file. Only take effect when using "recorder" middleware.
-* `saveHeaders?: string[]` - Specific some headers to save in "recorder" mode.
 * `ping?: number` - Delay before response, in ms.
+* `saveHeaders?: string[]` - Specific some headers to save in "recorder" mode.
 
-### `msm.middleware()`
 
-This will return a Koa compatible middleware.
+### `createMockServer(config: MockServerConfig)`
+
+Create a Koa compatible MSM middleware.
 
 Use this with the preview server (webpack-serve, webpack-dev-server, etc.)
 to simulate the backend server.
 
-### `msm.server`
 
-Here's some API which may help testing.
-e.g. we can use them to manually override the behavior temporarily,
-or record the requests from browser.
+### `createRecorder(config: MockServerConfig)`
 
-It has below methods:
+Create a Koa compatible MSM **RECORDER** middleware.
 
-#### `msm.server.once(method: string, url: string, definition: any)`
+Prepend this middleware before normal http-proxy Koa middleware to record the proxied response as JSON definitions.
 
-Override the behavior of the next one request of this method on this path.
-`definition` can be a connect middleware function or a JSON-like definition.
-
-**NOTE:** `url` is actually the request path.
-e.g. for `http://www.example.com:8080/user/1` it should be `"/user/1"`.
-
-#### `msm.server.on(method: string, url: string, definition: any)`
-
-Override the behavior of all later requests of this method on this path.
-`definition` can be a connect middleware function or a JSON-like definition.
-
-**NOTE:** `url` is actually the request path.
-e.g. for `http://www.example.com:8080/user/1` it should be `"/user/1"`.
-
-#### `msm.server.off(method?: string, url?: string)`
-
-Cancel the effect of previous `msm.server.on()`.
-
-If both `method` & `url` given, will cancel only the specified override.
-If neither given, all overrides will be canceled.
-If only one given, it will throw an error to help writing tests.
-
-#### `msm.server.record(isLogFlushCheckBypassed: boolean = false)`
-
-Start recording requests.
-
-If recording is already started or previous logs haven't been flushed
-it will throw an Error to help prevent potential error in tests.
-
-You can explicitly pass the log-flush check via the arguments,
-but the already-started check is mandatory.
-
-#### `msm.server.stopRecording()`
-
-Stop recording requests but not to flush the logs.
-
-#### `msm.server.flush()`
-
-Stop recording & flush all logs of requests.
-
-#### `msm.server.called(pathname?: string|RegExp, method?: string): ICallLog[]`
-
-Return a list of previous requests.
-
-You can filter the logs with pathname and/or method.  If leave blank it will mean "any".
-
-**NOTICE**:  `pathname` here means the request pathname starts with it.
-If you want to match the middle part, use RegExp.
-
-#### `ICallLog`
-
-```typescript
-export interface ICallLog {
-  method: string
-  body?: object
-  href?: string
-  search?: string
-  query?: object
-  pathname?: string
-}
-```
-
-**NOTICE**: `body` will only have value if you used [`body-parser`](https://github.com/expressjs/body-parser) before MSM.
 
 ### API Definitions
 
 `@whitetrefoil/msm` has ability to handle 2 kind of API definitions:
 
-* JS (connect middleware function)
+* JS/TS (Koa middleware function)
 * JSON
 
 This is the spec of the API definition files in JSON.
@@ -254,6 +138,37 @@ This is the spec of the API definition files in JSON.
 * `code?: number` - HTTP response status code.
 * `headers?: Object` - Custom HTTP response headers.
 * `body: any` - Response body.  Any valid JSON format can be used.
+
+
+### Koa
+
+This module re-exports its `koa` & `koa-bodyparser` as name `Koa` & `koaBodyparser`.
+
+
+### TypeScript
+
+This module exports some helper interfaces:
+
+#### `interface JsonApiDefinition`
+
+This is the type definition of JSON definition.
+
+#### `interface MsmMiddleware`
+
+Can be used as the type of JS definition, e.g.
+
+```typescript
+import { MsmMiddleware } from '@whitetrefoil/msm'
+
+const middleware: MsmMiddleware = async(ctx, next) => {
+  // ...
+}
+```
+
+#### `interface MsmParameterizedContext`
+
+The type of `ctx` in above `MsmMiddleware`.
+
 
 
 Changelog
