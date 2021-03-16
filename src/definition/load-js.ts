@@ -1,5 +1,6 @@
 import clearModule         from 'clear-module'
 import type { Middleware } from 'koa'
+import path                from 'path'
 import type { Logger }     from '../interfaces'
 
 
@@ -12,7 +13,8 @@ import type { Logger }     from '../interfaces'
  */
 export default function loadJsDef(filePath: string, logger: Logger): Middleware|undefined {
   try {
-    const regexp = new RegExp(`^${process.cwd()}`, 'u')
+    const cwd = path.sep === '/' ? process.cwd() : process.cwd().replaceAll(path.sep, '/')
+    const regexp = new RegExp(`^${cwd}`, 'u')
     clearModule.match(regexp)
     const loadedFile = require(filePath) as unknown
     if (typeof loadedFile === 'function') {
