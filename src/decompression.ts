@@ -1,4 +1,4 @@
-import type { IncomingHttpHeaders } from 'http'
+import type { OutgoingHttpHeaders } from 'http'
 import * as zlib                    from 'zlib'
 import type { Logger }              from './interfaces'
 
@@ -19,7 +19,7 @@ function isBufferOrString(any: Buffer|string|unknown): any is Buffer|string {
 
 export async function decompress(
   body: Buffer|string|unknown,
-  headers: IncomingHttpHeaders,
+  headers: OutgoingHttpHeaders,
   logger: Logger,
 ): Promise<Buffer|string|unknown> {
   const contentEncoding = headers['content-encoding']
@@ -33,7 +33,7 @@ export async function decompress(
 
   let algorithms: Algorithm[] = []
   try {
-    algorithms = contentEncoding.split(',')
+    algorithms = String(contentEncoding).split(',')
       .map(a => a.trim().toLowerCase())
       .filter(a => a !== IDENTITY_ALGORITHM)
       .map(a => {
@@ -48,7 +48,7 @@ export async function decompress(
 
     let decompressed = Buffer.isBuffer(body) ? body : Buffer.from(body)
     for (const alg of algorithms) {
-      // eslint-disable-next-line no-await-in-loop,no-loop-func
+      // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
       decompressed = await new Promise((resolve, reject) => {
         alg(decompressed, {}, (err, res) => {
           if (err != null) {
