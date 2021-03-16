@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v1.0.0-alpha.4
+
+* Fix minor TS type issue.
+
 ### v1.0.0-alpha.3
 
 * Fix RegExp error on Windows.
