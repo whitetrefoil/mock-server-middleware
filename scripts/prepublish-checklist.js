@@ -1,4 +1,4 @@
-const readline = require('readline')
+import readline from 'node:readline'
 
 console.log(`Preparing to publish version: ${process.env.npm_package_version}`)
 
@@ -10,10 +10,9 @@ function pleaseFix() {
 }
 
 const questions = [
-  'Have you set correct **--tag** value in npm publish command?',
   'Have you **committed** all files into Git?',
   'Have you **tagged** the version in Git?',
-  'Have you **pushed** all commits to GitHub?',
+  'Have you **pushed** all commits to Stash?',
   'Have you update the version number in **package.json**?',
   'Have you logged all changes in **README.md**?',
 ]
@@ -25,14 +24,16 @@ function askQuestionsResc() {
     rl.close()
     console.log('Checklist is finished! Let\'s roll!')
     process.exit(0)
-    return
     // Next will invoke `npm run build` in `package.json`
   }
 
-  rl.question(`${questions[finishedQuestions]} (y/N)? `, (ans) => {
-    if (ans.toLowerCase() !== 'y') { return pleaseFix() }
+  rl.question(`${questions[finishedQuestions]} (y/N)? `, ans => {
+    if (ans.toLowerCase() !== 'y') {
+      return pleaseFix()
+    }
     finishedQuestions += 1
     askQuestionsResc()
+    return undefined
   })
 }
 
