@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.1
+
+* Upgrade infrastructure to support native ESM modules.
+
 ### v1.0.0-alpha.4
 
 * Fix minor TS type issue.
