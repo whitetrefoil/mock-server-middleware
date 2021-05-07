@@ -1,11 +1,11 @@
-import * as fs                                                     from 'fs-extra'
-import parseurl                                                    from 'parseurl'
-import type { ParsedServerConfig }                                 from '../config'
-import { loadDef }                                                 from '../definition'
+import fs from 'fs-extra'
+import parseurl from 'parseurl'
+import type { ParsedServerConfig } from '../config'
+import { loadDef } from '../definition'
 import type { JsonApiDefinition, Logger, MsmParameterizedContext } from '../interfaces'
-import { createLogger, LogLevel }                                  from '../logger'
-import { composeModulePath }                                       from '../utils'
-import parseBody                                                   from './parse-body'
+import { createLogger, LogLevel } from '../logger'
+import { composeModulePath } from '../utils'
+import parseBody from './parse-body'
 
 
 export default async function saveDef(

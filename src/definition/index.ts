@@ -1,7 +1,7 @@
-import path                           from 'path'
+import path from 'path'
 import type { Logger, MsmMiddleware } from '../interfaces'
-import loadJsDef                      from './load-js'
-import loadJsonDef                    from './load-json'
+import loadJsDef from './load-js'
+import loadJsonDef from './load-json'
 
 
 /**

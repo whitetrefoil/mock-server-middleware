@@ -1,8 +1,8 @@
-import * as fs                                           from 'fs-extra'
-import JSON5                                             from 'json5'
-import path                                              from 'path'
+import fs from 'fs-extra'
+import JSON5 from 'json5'
+import path from 'path'
 import type { JsonApiDefinition, Logger, MsmMiddleware } from '../interfaces'
-import convertJsonToHandler                              from './convert'
+import convertJsonToHandler from './convert'
 
 /**
  * @param filePath - path to load file, **MUST** with ".json5" or ".json" suffix.
@@ -30,7 +30,7 @@ export default function loadJsonDef(filePath: string, logger: Logger): MsmMiddle
   }
 
   try {
-    const parsed = JSON5.parse(raw) as JsonApiDefinition
+    const parsed = JSON5.parse<JsonApiDefinition>(raw)
     return convertJsonToHandler(parsed)
   } catch (e: unknown) {
     logger.warn(`failed to parse JSON file ${filePath}, due to: ${(e as Error).message}`)

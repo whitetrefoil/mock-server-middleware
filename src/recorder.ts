@@ -1,7 +1,8 @@
-import { MockServerConfig, parseConfig } from './config'
-import type { MsmMiddleware }            from './interfaces'
-import { createLogger }                  from './logger'
-import saveDef                           from './recording/save'
+import type { MockServerConfig } from './config'
+import { parseConfig } from './config'
+import type { MsmMiddleware } from './interfaces'
+import { createLogger } from './logger'
+import saveDef from './recording/save'
 
 
 export default function createRecorder(config: MockServerConfig = {}): MsmMiddleware {

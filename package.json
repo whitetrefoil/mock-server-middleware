@@ -16,11 +16,10 @@
     "require": "./lib/main.cjs"
   },
   "module": "lib/main.module.js",
-  "umd:main": "lib/main.umd.js",
   "typings": "lib/main.d.ts",
   "scripts": {
     "prepublishOnly": "node scripts/prepublish-checklist.js && npm run build",
-    "build": "rimraf lib && microbundle --raw --no-pkg-main -o lib/main.cjs -f cjs --target node && microbundle --raw --no-pkg-main -o lib/main.js -f modern --target node && microbundle --raw --no-pkg-main -o lib/main.module.js -f es --target node && microbundle --raw --no-pkg-main -o lib/main.umd.js -f umd --target node",
+    "build": "rimraf lib && microbundle --raw --no-pkg-main -o lib/main.cjs -f cjs --target node && microbundle --raw --no-pkg-main -o lib/main.js -f modern --target node && microbundle --raw --no-pkg-main -o lib/main.module.js -f es --target node",
     "watch": "microbundle watch --raw --no-pkg-main -o lib/main.js -f modern --target node",
     "publish": "echo \"Done publishing, don't forget to:\n  1. **dist-tag** your channel in npm.\n  2. bump version in package.json\nGood luck with the publish ;)\"",
     "test": "run-s lint ut",

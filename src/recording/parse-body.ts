@@ -1,4 +1,4 @@
-import { decompress }                           from '../decompression'
+import { decompress } from '../decompression'
 import type { Logger, MsmParameterizedContext } from '../interfaces'
 
 

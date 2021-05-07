@@ -1,4 +1,4 @@
-import isPlainObject              from 'is-plain-obj'
+import isPlainObject from 'is-plain-obj'
 import type { JsonApiDefinition } from '../interfaces'
 
 

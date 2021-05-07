@@ -1,10 +1,11 @@
-import parseurl                                                         from 'parseurl'
-import { logConfig, MockServerConfig, parseConfig, ParsedServerConfig } from './config'
-import { loadDef }                                                      from './definition'
-import load404Def                                                       from './definition/load-404'
-import type { Logger, MsmMiddleware }                                   from './interfaces'
-import { createLogger }                                                 from './logger'
-import { composeModulePath, delay }                                     from './utils'
+import parseurl from 'parseurl'
+import type { MockServerConfig, ParsedServerConfig } from './config'
+import { logConfig, parseConfig } from './config'
+import { loadDef } from './definition'
+import load404Def from './definition/load-404'
+import type { Logger, MsmMiddleware } from './interfaces'
+import { createLogger } from './logger'
+import { composeModulePath, delay } from './utils'
 
 
 function tryLoadModule(

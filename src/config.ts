@@ -1,5 +1,5 @@
-import type { Logger }   from './interfaces'
-import { LogLevel }      from './logger'
+import type { Logger } from './interfaces'
+import { LogLevel } from './logger'
 import { isStringArray } from './utils'
 
 
@@ -68,7 +68,8 @@ export function parseConfig(config: MockServerConfig): ParsedServerConfig {
     apiDir           : typeof config.apiDir === 'string' ? config.apiDir : 'stubapi',
     apiPrefixes      : isStringArray(config.apiPrefixes) ? config.apiPrefixes : ['/api/'],
     fallbackToNoQuery: config.fallbackToNoQuery ?? false,
-    ignoreQueries    : isStringArray(config.ignoreQueries) || typeof config.ignoreQueries === 'boolean' ? config.ignoreQueries : true,
+    ignoreQueries    : isStringArray(
+      config.ignoreQueries) || typeof config.ignoreQueries === 'boolean' ? config.ignoreQueries : true,
     logLevel         : config.logLevel ?? LogLevel.NONE,
     lowerCase        : config.lowerCase ?? false,
     nonChar          : config.nonChar ?? '-',

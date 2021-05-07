@@ -1,7 +1,7 @@
-import clearModule         from 'clear-module'
+import clearModule from 'clear-module'
 import type { Middleware } from 'koa'
-import path                from 'path'
-import type { Logger }     from '../interfaces'
+import path from 'path'
+import type { Logger } from '../interfaces'
 
 
 /**

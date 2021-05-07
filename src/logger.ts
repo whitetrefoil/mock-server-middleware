@@ -1,4 +1,5 @@
-import chalk, { Chalk } from 'chalk'
+import type { Chalk } from 'chalk'
+import chalk from 'chalk'
 import type { Logger, PrintFn } from './interfaces'
 
 
