@@ -174,6 +174,12 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.2
+
+* Fix "fs.readFileSync is not a function".
+* Optimizations.
+* Remove UMD bundle since it's targeting node environment.
+
 ### v2.0.0-alpha.1
 
 * Upgrade infrastructure to support native ESM modules.
