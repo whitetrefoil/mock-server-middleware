@@ -20,14 +20,14 @@ import loadJsonDef from './load-json'
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export function loadDef(basePath: string, logger: Logger): MsmMiddleware|undefined {
+export async function loadDef(basePath: string, logger: Logger): Promise<MsmMiddleware|undefined> {
 
   const jsonDef =
     loadJsonDef(`${basePath}.json5`, logger) ??
     loadJsonDef(`${basePath}.json`, logger) ??
     loadJsonDef(path.join(basePath, 'index.json5'), logger) ??
     loadJsonDef(path.join(basePath, 'index.json'), logger) ??
-    loadJsDef(basePath, logger)
+    await loadJsDef(basePath, logger)
 
   return jsonDef
 }

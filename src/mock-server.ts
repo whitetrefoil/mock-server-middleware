@@ -8,7 +8,7 @@ import { createLogger } from './logger'
 import { composeModulePath, delay } from './utils'
 
 
-function tryLoadModule(
+async function tryLoadModule(
   {
     method,
     path,
@@ -28,7 +28,7 @@ function tryLoadModule(
     nonChar,
   }: ParsedServerConfig,
   logger: Logger,
-): MsmMiddleware {
+): Promise<MsmMiddleware> {
   const modulePath = composeModulePath({
     method,
     pathname,
@@ -39,7 +39,7 @@ function tryLoadModule(
     ignoreQueries,
   })
 
-  const handler = loadDef(modulePath, logger)
+  const handler = await loadDef(modulePath, logger)
 
   if (handler != null) {
     return handler
@@ -60,7 +60,7 @@ function tryLoadModule(
     ignoreQueries: true,
   })
 
-  const fallbackHandler = loadDef(fallbackModulePath, logger)
+  const fallbackHandler = await loadDef(fallbackModulePath, logger)
   if (fallbackHandler != null) {
     return fallbackHandler
   }
@@ -100,7 +100,7 @@ export default function createMockServer(config: MockServerConfig = {}): MsmMidd
 
     const delayPromise = delay(cfg.ping)
 
-    const handler = tryLoadModule({ method, path, pathname, search }, cfg, logger)
+    const handler = await tryLoadModule({ method, path, pathname, search }, cfg, logger)
     await delayPromise
     await handler(ctx, next)
   }

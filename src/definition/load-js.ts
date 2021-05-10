@@ -2,6 +2,7 @@ import clearModule from 'clear-module'
 import type { Middleware } from 'koa'
 import path from 'path'
 import type { Logger } from '../interfaces'
+import { importFresh } from '../utils.js'
 
 
 /**
@@ -11,12 +12,12 @@ import type { Logger } from '../interfaces'
  *     return loaded stuff if successfully loaded;
  *     return `undefined` if failed to load;
  */
-export default function loadJsDef(filePath: string, logger: Logger): Middleware|undefined {
+export default async function loadJsDef(filePath: string, logger: Logger): Promise<Middleware|undefined> {
   try {
     const cwd = path.sep === '/' ? process.cwd() : process.cwd().replaceAll(path.sep, '/')
     const regexp = new RegExp(`^${cwd}`, 'u')
     clearModule.match(regexp)
-    const loadedFile = require(filePath) as unknown
+    const loadedFile = await importFresh(filePath) as unknown
     if (typeof loadedFile === 'function') {
       return loadedFile as Middleware
     }

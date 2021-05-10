@@ -78,3 +78,8 @@ export function composeModulePath({
     }),
   )
 }
+
+
+export async function importFresh(modulePath: string) {
+  return import(`${modulePath}?x=${Math.random().toString()}`)
+}
