@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.4
+
+* Fix ESM cannot load dir.
+
 ### v2.0.0-alpha.3
 
 * Fix "require is not defined".
