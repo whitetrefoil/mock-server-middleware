@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.3
+
+* Fix "require is not defined".
+
 ### v2.0.0-alpha.2
 
 * Fix "fs.readFileSync is not a function".
