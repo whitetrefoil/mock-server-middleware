@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import { URLSearchParams } from 'url'
 
@@ -82,4 +83,13 @@ export function composeModulePath({
 
 export async function importFresh(modulePath: string) {
   return import(`${modulePath}?x=${Math.random().toString()}`)
+}
+
+
+export async function importFreshJsModule(modulePath: string) {
+  const stat = await fs.stat(modulePath)
+  if (stat.isDirectory()) {
+    return importFresh(path.join(modulePath, 'index.js'))
+  }
+  return importFresh(modulePath)
 }

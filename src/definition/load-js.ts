@@ -2,7 +2,7 @@ import clearModule from 'clear-module'
 import type { Middleware } from 'koa'
 import path from 'path'
 import type { Logger } from '../interfaces'
-import { importFresh } from '../utils.js'
+import { importFreshJsModule } from '../utils.js'
 
 
 /**
@@ -17,7 +17,7 @@ export default async function loadJsDef(filePath: string, logger: Logger): Promi
     const cwd = path.sep === '/' ? process.cwd() : process.cwd().replaceAll(path.sep, '/')
     const regexp = new RegExp(`^${cwd}`, 'u')
     clearModule.match(regexp)
-    const loadedFile = await importFresh(filePath) as unknown
+    const loadedFile = await importFreshJsModule(filePath) as unknown
     if (typeof loadedFile === 'function') {
       return loadedFile as Middleware
     }
@@ -26,7 +26,7 @@ export default async function loadJsDef(filePath: string, logger: Logger): Promi
     }
     logger.warn(`Failed to recognize commonjs export or es default export from module ${filePath}`)
   } catch (e: unknown) {
-    if ((e as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND') {
+    if ((e as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND' || (e as NodeJS.ErrnoException).code === 'ENOENT') {
       logger.debug(`module "${filePath}" doesn't exist`)
     } else {
       logger.warn(`failed to require module "${filePath}", due to: ${(e as Error).message}`)
