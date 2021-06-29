@@ -1,3 +1,4 @@
+import type { Stats } from 'fs'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { URLSearchParams } from 'url'
@@ -82,12 +83,19 @@ export function composeModulePath({
 
 
 export async function importFresh(modulePath: string) {
-  return import(`${modulePath}?x=${Math.random().toString()}`)
+  return import(`${modulePath}.js?x=${Math.random().toString()}`)
+    .catch(async() => import(`${modulePath}.es?x=${Math.random().toString()}`))
+    .catch(async() => import(`${modulePath}.ts?x=${Math.random().toString()}`))
 }
 
 
 export async function importFreshJsModule(modulePath: string) {
-  const stat = await fs.stat(modulePath)
+  let stat: Stats
+  try {
+    stat = await fs.stat(modulePath)
+  } catch (e: unknown) {
+    return importFresh(modulePath)
+  }
   if (stat.isDirectory()) {
     return importFresh(path.join(modulePath, 'index.js'))
   }
