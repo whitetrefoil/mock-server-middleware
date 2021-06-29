@@ -174,6 +174,10 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.5
+
+* Fix problems of loading JS/TS modules.
+
 ### v2.0.0-alpha.4
 
 * Fix ESM cannot load dir.
