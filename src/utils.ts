@@ -2,16 +2,17 @@ import type { Stats } from 'fs'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { URLSearchParams } from 'url'
+import { promisify } from 'util'
 
+
+const setTimeoutPromise = promisify(setTimeout)
 
 export function isStringArray(val: unknown): val is string[] {
   return Array.isArray(val) && val.every(v => typeof v === 'string')
 }
 
 export async function delay(ms: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
+  return setTimeoutPromise(ms)
 }
 
 function formatPath({
@@ -97,7 +98,7 @@ export async function importFreshJsModule(modulePath: string) {
     return importFresh(modulePath)
   }
   if (stat.isDirectory()) {
-    return importFresh(path.join(modulePath, 'index.js'))
+    return importFresh(path.join(modulePath, 'index'))
   }
   return importFresh(modulePath)
 }
