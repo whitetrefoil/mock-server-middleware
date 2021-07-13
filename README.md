@@ -174,6 +174,11 @@ The type of `ctx` in above `MsmMiddleware`.
 Changelog
 ---------
 
+### v2.0.0-alpha.6
+
+* Fix "DIR/index" importing problem.
+* Fix build process.
+
 ### v2.0.0-alpha.5
 
 * Fix problems of loading JS/TS modules.
